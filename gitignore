@@ -1,0 +1,34 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+# Executables
+*.exe
+*.out
+*.app
+
+### Linux template
+*~
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+.idea
+cmake-build-debug
+build
+
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+target/
+*.class
+*.jar
+*.iml
