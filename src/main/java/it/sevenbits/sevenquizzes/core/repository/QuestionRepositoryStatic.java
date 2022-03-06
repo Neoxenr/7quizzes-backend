@@ -20,9 +20,9 @@ public class QuestionRepositoryStatic implements QuestionRepository {
 
         questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa6",
                 new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa6", "question text 1",
-                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa11", "answer text1"),
+                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa6", "answer text1"),
                 new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa12", "answer text2"))),
-                "3fa85f64-5717-4562-b3fc-2c963f66afa11"));
+                "3fa85f64-5717-4562-b3fc-2c963f66afa6"));
 
         questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa2",
                 new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa2", "question text 2",
