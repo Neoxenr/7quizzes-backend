@@ -18,30 +18,35 @@ public class QuestionRepositoryStatic implements QuestionRepository {
     public QuestionRepositoryStatic() {
         questions = new HashMap<>();
 
-        questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa6", "question text 1",
-                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa11", "answer text1"))),
-                "3fa85f64-5717-4562-b3fc-2c963f66afa11"));
+        questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa1",
+                new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa1", "question text 1",
+                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa1", "answer text1"),
+                new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa2", "answer text2"))),
+                "3fa85f64-5717-4562-b3fc-2c963f66afa1"));
 
         questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa2",
                 new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa2", "question text 2",
-                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa13", "answer text2"))),
-                "3fa85f64-5717-4562-b3fc-2c963f66afa13"));
+                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa2", "answer text1"),
+                new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa3", "answer text2"))),
+                "3fa85f64-5717-4562-b3fc-2c963f66afa2"));
 
-        questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa1",
-                new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa1", "question text 3",
-                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa14", "answer text1"))),
-                "3fa85f64-5717-4562-b3fc-2c963f66afa14"));
+        questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa3",
+                new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa3", "question text 3",
+                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa3", "answer text1"),
+                new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa4", "answer text2"))),
+                "3fa85f64-5717-4562-b3fc-2c963f66afa3"));
 
         questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa4",
                 new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa4", "question text 4",
-                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa17", "answer text2"))),
-                "3fa85f64-5717-4562-b3fc-2c963f66afa17"));
+                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa4", "answer text1"),
+                new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa5", "answer text2"))),
+                "3fa85f64-5717-4562-b3fc-2c963f66afa5"));
 
-        questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa10",
-                new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa10", "question text 5",
-                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa19", "answer text2"))),
-                "3fa85f64-5717-4562-b3fc-2c963f66afa19"));
+        questions.put("3fa85f64-5717-4562-b3fc-2c963f66afa5",
+                new AbstractMap.SimpleEntry<>(new QuestionWithOptions("3fa85f64-5717-4562-b3fc-2c963f66afa5", "question text 5",
+                Arrays.asList(new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa5", "answer text1"),
+                new QuestionAnswer("3fa85f64-5717-4562-b3fc-2c963f66afa6", "answer text2"))),
+                "3fa85f64-5717-4562-b3fc-2c963f66afa5"));
     }
 
     /**
