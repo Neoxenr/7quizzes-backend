@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.model;
+package it.sevenbits.sevenquizzes.core.model.question;
 
 public class QuestionLocation {
     private final String questionId;

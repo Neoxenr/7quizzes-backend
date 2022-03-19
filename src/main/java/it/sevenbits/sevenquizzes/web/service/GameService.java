@@ -1,16 +1,18 @@
 package it.sevenbits.sevenquizzes.web.service;
 
-import it.sevenbits.sevenquizzes.core.model.AnswerQuestionResponse;
-import it.sevenbits.sevenquizzes.core.model.GameScore;
-import it.sevenbits.sevenquizzes.core.model.QuestionLocation;
-import it.sevenbits.sevenquizzes.core.model.QuestionWithOptions;
+import it.sevenbits.sevenquizzes.core.model.game.Game;
+import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
+import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
+import it.sevenbits.sevenquizzes.core.model.game.GameScore;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
 import it.sevenbits.sevenquizzes.core.repository.GameRepository;
 import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
+import it.sevenbits.sevenquizzes.web.model.game.StartGameRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Service
 public class GameService {
@@ -29,29 +31,22 @@ public class GameService {
     }
 
     /**
-     * Returns model with questino id
+     * Returns model with question id
      *
      * @return QuestionLocation - model with question id
      */
-    public QuestionLocation startGame() {
-        GameScore gameScore = gameRepository.getGameScore();
+    public QuestionLocation startGame(final String roomId, final String playerId) {
+        GameScore gameScore = gameRepository.getGameScore(roomId);
+
+        // не знаю, будут ли вопросы закреплены за конкретной игрой
+        // или можно брать рандомный вопрос из банка вопросов?
 
         System.out.println(gameScore);
 
-        final Set<String> questionsIds = questionRepository.getQuestionsIds();
+        final List<String> questionsIds = questionRepository.getQuestionsIds();
         final String questionId = selectQuestionId(questionsIds);
 
         return new QuestionLocation(questionId);
-    }
-
-    /**
-     * Return next question id
-     *
-     * @param questionsIds - questions ids
-     * @return String - next question id
-     */
-    public String selectQuestionId(final Set<String> questionsIds) {
-        return new ArrayList<>(questionsIds).get(new Random().nextInt(questionsIds.size()));
     }
 
     /**
@@ -60,7 +55,7 @@ public class GameService {
      * @param questionId - question id
      * @return QuestionWithOptions - model with question data
      */
-    public QuestionWithOptions getQuestion(final String questionId) {
+    public QuestionWithOptions getQuestion(final String roomId, final String questionId) {
         return questionRepository.getQuestionById(questionId);
     }
 
@@ -72,60 +67,56 @@ public class GameService {
      * @return AnswerQuestionResponse - model with game statistics, right answer id, next question id
      * @throws Exception - if game is ended
      */
-    public AnswerQuestionResponse answerQuestion(final String questionId, final String answerId) throws Exception {
-        final int questionsCount = gameRepository.getQuestionsCount();
-        final int questionsAnsweredCount = gameRepository.getQuestionsAnsweredCount();
+    public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
+                                                 final String questionId, final String answerId) throws Exception {
+        final GameStatus gameStatus = gameRepository.getGameStatus(roomId);
 
-        if (isGameOver(questionsAnsweredCount, questionsCount)) {
+        final int questionsCount = gameStatus.getQuestionsCount();
+        int questionNumber = gameStatus.getQuestionNumber();
+
+        if (questionNumber < questionsCount) {
+            GameScore gameScore = gameRepository.getGameScore(roomId);
+
+            final String correctAnswerId = questionRepository.getCorrectAnswerId(questionId);
+
+            if (answerId.equals(correctAnswerId)) {
+                final int questionMark = 5;
+                gameScore.updateScore(questionMark);
+            }
+
+            // связать список вопросов с игрой?? убрть удаление
+            questionRepository.removeQuestion(questionId);
+
+            gameStatus.updateQuestionNumber();
+
+            questionNumber = gameStatus.getQuestionNumber();
+
+            if (questionNumber == questionsCount) {
+                return new AnswerQuestionResponse(correctAnswerId, null,
+                        gameScore.getTotalScore(), gameScore.getQuestionScore());
+            }
+
+            List<String> questionsIds = questionRepository.getQuestionsIds();
+            final String nextQuestionId = selectQuestionId(questionsIds);
+
+            return new AnswerQuestionResponse(correctAnswerId, nextQuestionId,
+                    gameScore.getTotalScore(), gameScore.getQuestionScore());
+        } else {
             throw new Exception("The game is ended");
         }
+    }
 
-        final String correctAnswerId = questionRepository.getCorrectAnswerId(questionId);
-
-        if (isRightAnswer(answerId, correctAnswerId)) {
-            final int questionMark = 5;
-            gameRepository.updateGameScore(questionMark);
-        }
-
-        questionRepository.removeQuestion(questionId);
-
-        gameRepository.updateQuestionsAnsweredCount();
-
-        final GameScore gameScore = gameRepository.getGameScore();
-        System.out.println(gameScore);
-
-        if (isGameOver(questionsAnsweredCount, questionsCount)) {
-            return new AnswerQuestionResponse(correctAnswerId, null,
-                    gameScore.getTotalScore(), gameScore.getQuestionScore());
-        }
-
-        Set<String> questionsIds = questionRepository.getQuestionsIds();
-
-        final String nextQuestionId = selectQuestionId(questionsIds);
-
-        return new AnswerQuestionResponse(correctAnswerId, nextQuestionId,
-                gameScore.getTotalScore(), gameScore.getQuestionScore());
+    public GameStatus getGameStatus(final String roomId) {
+        return gameRepository.getGameStatus(roomId);
     }
 
     /**
-     * Returns result of comparison answer id and correct answer id
+     * Return next question id
      *
-     * @param answerId - answer id
-     * @param correctAnswerId - correct answer id
-     * @return boolean - result of comparison answer id and correct answer id
+     * @param questionsIds - questions ids
+     * @return String - next question id
      */
-    public boolean isRightAnswer(final String answerId, final String correctAnswerId) {
-        return answerId.equals(correctAnswerId);
-    }
-
-    /**
-     * Return result of comparison questions answered count and questions count
-     *
-     * @param questionsAnsweredCount - questions answered count
-     * @param questionsCount - question count in the game
-     * @return boolean - result of comparison questions answered count and questions count
-     */
-    public boolean isGameOver(final int questionsAnsweredCount, final int questionsCount) {
-        return questionsAnsweredCount >= questionsCount;
+    public String selectQuestionId(final List<String> questionsIds) {
+        return questionsIds.get(new Random().nextInt(questionsIds.size()));
     }
 }

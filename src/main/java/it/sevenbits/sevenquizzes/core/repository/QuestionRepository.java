@@ -1,16 +1,16 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
-import it.sevenbits.sevenquizzes.core.model.QuestionWithOptions;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
 
-import java.util.Set;
+import java.util.List;
 
 public interface QuestionRepository {
     /**
      * Returns all available questions ids in questions repository
      *
-     * @return Set<String> - all available questions ids in questions repository
+     * @return List<String> - all available questions ids in questions repository
      */
-    Set<String> getQuestionsIds();
+    List<String> getQuestionsIds();
 
     /**
      * Return correct answer id on question

@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.model;
+package it.sevenbits.sevenquizzes.core.model.game;
 
 public class GameScore {
     private int totalScore;
@@ -21,19 +21,8 @@ public class GameScore {
         return questionScore;
     }
 
-    /**
-     * Updates total score
-     *
-     * @param questionMark - score for right answer on question
-     */
-    public void updateTotalScore(final int questionMark) {
+    public void updateScore(final int questionMark) {
         totalScore += questionMark;
-    }
-
-    /**
-     * Updates total question score
-     */
-    public void updateQuestionScore() {
         questionScore += 1;
     }
 

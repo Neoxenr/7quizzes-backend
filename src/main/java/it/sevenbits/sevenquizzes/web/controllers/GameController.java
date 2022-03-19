@@ -1,9 +1,12 @@
 package it.sevenbits.sevenquizzes.web.controllers;
 
-import it.sevenbits.sevenquizzes.core.model.AnswerQuestionResponse;
-import it.sevenbits.sevenquizzes.core.model.QuestionLocation;
-import it.sevenbits.sevenquizzes.core.model.QuestionWithOptions;
-import it.sevenbits.sevenquizzes.web.model.AnswerQuestionRequest;
+import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
+import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
+import it.sevenbits.sevenquizzes.core.model.question.IncorrectAnswerQuestionResponse;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
+import it.sevenbits.sevenquizzes.web.model.game.StartGameRequest;
+import it.sevenbits.sevenquizzes.web.model.question.AnswerQuestionRequest;
 import it.sevenbits.sevenquizzes.web.service.GameService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +38,15 @@ public class GameController {
      */
     @RequestMapping(value = "/rooms/{roomId}/game/start", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<QuestionLocation> postNewGame(@PathVariable final int roomId) {
+    public ResponseEntity<QuestionLocation> postNewGame(@PathVariable final String roomId, @RequestBody StartGameRequest startGameRequest) {
         try {
-            final QuestionLocation questionLocation = gameService.startGame();
+            final QuestionLocation questionLocation = gameService.startGame(roomId, startGameRequest.getPlayerId());
 
             return new ResponseEntity<>(questionLocation, HttpStatus.OK);
+        } catch (IllegalArgumentException exception) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException exception) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (Exception exception) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -54,11 +61,13 @@ public class GameController {
      */
     @RequestMapping(value = "/rooms/{roomId}/game/question/{questionId}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<QuestionWithOptions> getQuestionData(@PathVariable final int roomId, @PathVariable final String questionId) {
+    public ResponseEntity<QuestionWithOptions> getQuestionData(@PathVariable final String roomId, @PathVariable final String questionId) {
         try {
-            final QuestionWithOptions questionWithOptions = gameService.getQuestion(questionId);
+            final QuestionWithOptions questionWithOptions = gameService.getQuestion(roomId, questionId);
 
             return new ResponseEntity<>(questionWithOptions, HttpStatus.OK);
+        } catch (IllegalArgumentException exception) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception exception) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -74,14 +83,30 @@ public class GameController {
      */
     @RequestMapping(value = "/rooms/{roomId}/game/question/{questionId}/answer", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<AnswerQuestionResponse> postAnswer(@PathVariable final int roomId,
+    public ResponseEntity<AnswerQuestionResponse> postAnswer(@PathVariable final String roomId,
             @PathVariable final String questionId,
             @RequestBody final AnswerQuestionRequest answerQuestionRequest) {
         try {
             final AnswerQuestionResponse answerQuestionResponse =
-                    gameService.answerQuestion(questionId, answerQuestionRequest.getAnswerId());
+                    gameService.answerQuestion(roomId, answerQuestionRequest.getPlayerId(),
+                            questionId, answerQuestionRequest.getAnswerId());
 
             return new ResponseEntity<>(answerQuestionResponse, HttpStatus.OK);
+        } catch (RuntimeException exception) {
+            // HANDLER
+            return new ResponseEntity<>(new IncorrectAnswerQuestionResponse(questionId, ), HttpStatus.CONFLICT);
+        } catch (IllegalArgumentException exception) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception exception) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/rooms/{roomId}/game", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<GameStatus> getGameStatus(@PathVariable final String roomId) {
+        try {
+            return new ResponseEntity<>(gameService.getGameStatus(roomId), HttpStatus.OK);
         } catch (Exception exception) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

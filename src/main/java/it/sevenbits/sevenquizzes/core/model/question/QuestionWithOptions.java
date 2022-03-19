@@ -1,4 +1,6 @@
-package it.sevenbits.sevenquizzes.core.model;
+package it.sevenbits.sevenquizzes.core.model.question;
+
+import it.sevenbits.sevenquizzes.core.model.question.QuestionAnswer;
 
 import java.util.List;
 

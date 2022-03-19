@@ -1,9 +1,6 @@
 package it.sevenbits.sevenquizzes.config;
 
-import it.sevenbits.sevenquizzes.core.repository.GameRepository;
-import it.sevenbits.sevenquizzes.core.repository.GameRepositoryStatic;
-import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
-import it.sevenbits.sevenquizzes.core.repository.QuestionRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,4 +25,7 @@ public class RepositoryConfig {
     public QuestionRepository questionRepository() {
         return new QuestionRepositoryStatic();
     }
+
+    @Bean
+    public RoomRepository roomRepository() {return new RoomRepositoryStatic();}
 }

@@ -1,67 +1,24 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
-import it.sevenbits.sevenquizzes.core.model.GameScore;
+import it.sevenbits.sevenquizzes.core.model.game.Game;
+import it.sevenbits.sevenquizzes.core.model.game.GameScore;
+import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameRepositoryStatic implements GameRepository {
-    private final int questionsCount = 5;
+    private final Map<String, Game> games;
 
-    private int questionsAnsweredCount = 0;
-
-    private final GameScore gameScore;
-
-    /**
-     * GameRepositoryStatic constructor
-     */
     public GameRepositoryStatic() {
-        gameScore = new GameScore();
+        this.games = new HashMap<>();
     }
 
-    /**
-     * Returns questions count
-     *
-     * @return int - questions count in the game
-     */
-    @Override
-    public int getQuestionsCount() {
-        return questionsCount;
+    public GameScore getGameScore(final String id) {
+        return games.get(id).getGameScore();
     }
 
-    /**
-     * Return answered questions count in the game
-     *
-     * @return int - answered questions count in the game
-     */
-    @Override
-    public int getQuestionsAnsweredCount() {
-        return questionsAnsweredCount;
-    }
-
-    /**
-     * Returns game score model
-     *
-     * @return GameScore - game score model
-     */
-    @Override
-    public GameScore getGameScore() {
-        return gameScore;
-    }
-
-    /**
-     * Updates correct answers
-     */
-    @Override
-    public void updateQuestionsAnsweredCount() {
-        questionsAnsweredCount++;
-    }
-
-    /**
-     * Updates game score
-     *
-     * @param questionMark - score for right answer on question
-     */
-    @Override
-    public void updateGameScore(final int questionMark) {
-        gameScore.updateTotalScore(questionMark);
-        gameScore.updateQuestionScore();
+    public GameStatus getGameStatus(final String id) {
+        return games.get(id).getGameStatus();
     }
 }
