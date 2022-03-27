@@ -48,7 +48,6 @@ public class GameService {
         }
 
         final int questionsCount = 2;
-
         final Game game = gameRepository.addGame(roomId, questionsCount);
 
         final GameScore gameScore = game.getGameScore();
@@ -89,7 +88,7 @@ public class GameService {
     public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
             final String questionId, final String answerId) throws Exception {
         if (!roomRepository.contains(roomId) || !gameRepository.contains(roomId)) {
-            throw new NullPointerException("Room with id = " + roomId + "does not exist");
+            throw new NullPointerException("Room with id = " + roomId + " does not exist");
         }
 
         final GameStatus gameStatus = gameRepository.getGameStatus(roomId);

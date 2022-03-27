@@ -47,7 +47,6 @@ public class GameControllerTest {
         final StartGameRequest startGameRequest = new StartGameRequest(playerId);
 
         roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 10);
 
         final ResponseEntity<QuestionLocation> response = gameController.postNewGame(roomId, startGameRequest);
 
@@ -76,6 +75,7 @@ public class GameControllerTest {
         final StartGameRequest startGameRequest = new StartGameRequest(playerId);
 
         roomRepository.addRoom(roomId, playerId, "Test room");
+        gameRepository.addGame(roomId, 10);
 
         final ResponseEntity<QuestionLocation> response = gameController.postNewGame(roomId, startGameRequest);
 
