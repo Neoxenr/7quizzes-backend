@@ -1,20 +1,49 @@
 package it.sevenbits.sevenquizzes.core.model.room;
 
+import it.sevenbits.sevenquizzes.core.model.player.Player;
+
 import java.util.List;
 
-public class GetRoomResponse extends RoomWithOptions {
-    private final List<String> players;
+public class GetRoomResponse {
+    private final RoomWithOptions room;
 
-    public GetRoomResponse(final String roomId, final String roomName, final List<String> players) {
-        super(roomId, roomName);
+    private final List<Player> players;
+
+    /**
+     * GetRoomResponse constuctor
+     *
+     * @param room - room
+     * @param players - players
+     */
+    public GetRoomResponse(final RoomWithOptions room, final List<Player> players) {
+        this.room = room;
         this.players = players;
     }
 
-    public List<String> getPlayers() {
+    /**
+     * Returns RoomWithOptions model
+     *
+     * @return RoomWithOptions - model for room
+     */
+    public RoomWithOptions getRoom() {
+        return room;
+    }
+
+    /**
+     * Returns players in the room
+     *
+     * @return List<Players> - players in the room
+     */
+    public List<Player> getPlayers() {
         return players;
     }
 
+    /**
+     * Adds player to the room
+     *
+     * @param playerId - player id
+     */
     public void addPlayer(final String playerId) {
-        players.add(playerId);
+        players.add(new Player(playerId));
     }
 }

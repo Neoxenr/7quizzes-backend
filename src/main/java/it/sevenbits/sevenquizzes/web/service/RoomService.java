@@ -6,31 +6,60 @@ import it.sevenbits.sevenquizzes.core.model.room.GetRoomsResponse;
 import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class RoomService {
     private final RoomRepository roomRepository;
 
+    /**
+     * RoomService constructor
+     *
+     * @param roomRepository - room repository
+     */
     public RoomService(final RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
     }
 
+    /**
+     * Return all rooms from repository
+     *
+     * @return GetRoomsResponse - all rooms from repository
+     */
     public GetRoomsResponse getRooms() {
-        return roomRepository.getRooms();
+        return new GetRoomsResponse(roomRepository.getRooms());
     }
 
+    /**
+     * Create new room in repository
+     *
+     * @param playerId - player id
+     * @param roomName - room name
+     * @return CreateRoomResponse - new room model
+     */
     public CreateRoomResponse createRoom(final String playerId, final String roomName) {
-        final String newRoomId = "b8a71c88-7ae0-4a54-9697-9ceb5a1f8fc" + new Random().nextInt(10);
+        final String roomId = UUID.randomUUID().toString();
 
-        return roomRepository.addRoom(newRoomId, playerId, roomName);
+        return roomRepository.addRoom(roomId, playerId, roomName);
     }
 
-    public GetRoomResponse getRoom(final String id) {
-        return roomRepository.getRoom(id);
+    /**
+     * Returns room by id
+     *
+     * @param roomId - room id
+     * @return GetRoomResponse - room model
+     */
+    public GetRoomResponse getRoom(final String roomId) {
+        return new GetRoomResponse(roomRepository.getRoomById(roomId), roomRepository.getPlayers(roomId));
     }
 
-    public void joinRoom(final String id, final String playerId) {
-        roomRepository.addPlayer(id, playerId);
+    /**
+     * Joins player to room
+     *
+     * @param roomId - room id
+     * @param playerId - player id
+     */
+    public void joinRoom(final String roomId, final String playerId) {
+        roomRepository.addPlayer(roomId, playerId);
     }
 }

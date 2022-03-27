@@ -1,11 +1,8 @@
 package it.sevenbits.sevenquizzes.core.model.question;
 
-import it.sevenbits.sevenquizzes.core.model.question.QuestionAnswer;
-import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
+public class QuestionWithOptionsAndAnswer {
+    private final QuestionWithOptions question;
 
-import java.util.List;
-
-public class QuestionWithOptionsAndAnswer extends QuestionWithOptions {
     private final String answerId;
 
     /**
@@ -15,10 +12,13 @@ public class QuestionWithOptionsAndAnswer extends QuestionWithOptions {
      * @param questionText - question text
      * @param answersList  - answers list on question
      */
-    public QuestionWithOptionsAndAnswer(final String questionId, final String questionText,
-                                        final List<QuestionAnswer> answersList, final String answerId) {
-        super(questionId, questionText, answersList);
+    public QuestionWithOptionsAndAnswer(final QuestionWithOptions question, final String answerId) {
+        this.question = question;
         this.answerId = answerId;
+    }
+
+    public QuestionWithOptions getQuestion() {
+        return question;
     }
 
     public String getAnswerId() {

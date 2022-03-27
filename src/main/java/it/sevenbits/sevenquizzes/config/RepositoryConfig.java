@@ -1,8 +1,15 @@
 package it.sevenbits.sevenquizzes.config;
 
-import it.sevenbits.sevenquizzes.core.repository.*;
+import it.sevenbits.sevenquizzes.core.repository.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.GameRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.QuestionRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.RoomRepositoryStatic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
 
 @Configuration
 public class RepositoryConfig {
@@ -13,7 +20,7 @@ public class RepositoryConfig {
      */
     @Bean
     public GameRepository gameRepository() {
-        return new GameRepositoryStatic();
+        return new GameRepositoryStatic(new HashMap<>());
     }
 
     /**
@@ -23,9 +30,16 @@ public class RepositoryConfig {
      */
     @Bean
     public QuestionRepository questionRepository() {
-        return new QuestionRepositoryStatic();
+        return new QuestionRepositoryStatic(new HashMap<>(), new HashMap<>());
     }
 
+    /**
+     * Return RoomRepository
+     *
+     * @return RoomRepository - repository for storing room data
+     */
     @Bean
-    public RoomRepository roomRepository() {return new RoomRepositoryStatic();}
+    public RoomRepository roomRepository() {
+        return new RoomRepositoryStatic(new HashMap<>(), new HashMap<>());
+    }
 }

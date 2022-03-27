@@ -13,9 +13,9 @@ public class AnswerQuestionResponse {
      * AnswerQuestionResponse constructor
      *
      * @param correctAnswerId - correct answer id on question
-     * @param questionId - current question id
-     * @param totalScore - total game score
-     * @param questionScore - total question score
+     * @param questionId      - current question id
+     * @param totalScore      - total game score
+     * @param questionScore   - total question score
      */
     public AnswerQuestionResponse(final String correctAnswerId, final String questionId,
             final int totalScore, final int questionScore) {

@@ -1,43 +1,107 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
+import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
-import it.sevenbits.sevenquizzes.core.model.room.GetRoomResponse;
-import it.sevenbits.sevenquizzes.core.model.room.GetRoomsResponse;
+import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class RoomRepositoryStatic implements RoomRepository {
-    private final Map<String, GetRoomResponse> rooms;
+    private final Map<String, RoomWithOptions> rooms;
+    private final Map<String, List<Player>> roomsPlayers;
 
-    public RoomRepositoryStatic() {
-        this.rooms = new HashMap<>();
+    /**
+     *
+     * @param rooms - rooms
+     * @param roomsPlayers - rooms players
+     */
+    public RoomRepositoryStatic(final Map<String, RoomWithOptions> rooms, final Map<String, List<Player>> roomsPlayers) {
+        this.rooms = rooms;
+        this.roomsPlayers = roomsPlayers;
     }
 
+    /**
+     * Returns all rooms in repository
+     *
+     * @return List<RoomWithOptions> - all rooms in repository
+     */
     @Override
-    public GetRoomsResponse getRooms() {
-        return new GetRoomsResponse(new ArrayList<>(rooms.values()));
+    public List<RoomWithOptions> getRooms() {
+        return new ArrayList<>(rooms.values());
     }
 
+    /**
+     * Creates new room
+     *
+     * @param roomId - room id
+     * @param playerId - player id
+     * @param roomName - room name
+     * @return CreateRoomResponse - model for new room
+     */
     @Override
     public CreateRoomResponse addRoom(final String roomId, final String playerId, final String roomName) {
-        List<String> players = new ArrayList<>();
-        players.add(playerId);
+        final RoomWithOptions room = new RoomWithOptions(roomId, roomName);
 
-        final GetRoomResponse newRoom = new GetRoomResponse(roomId, roomName, players);
-        rooms.put(roomId, newRoom);
+        List<Player> players = new ArrayList<>();
+        players.add(new Player(playerId));
+
+        rooms.put(roomId, room);
+        roomsPlayers.put(roomId, players);
 
         return new CreateRoomResponse(roomId, roomName, players);
     }
 
+    /**
+     * Return RoomWithOptions model by id
+     *
+     * @param roomId - room id
+     * @return RoomWithOptions - model for room
+     */
     @Override
-    public GetRoomResponse getRoom(final String id) {
-        return rooms.get(id);
+    public RoomWithOptions getRoomById(final String roomId) {
+        return rooms.get(roomId);
     }
 
+    /**
+     * Adds player to the room
+     *
+     * @param roomId - room id
+     * @param playerId - player id
+     */
     @Override
-    public void addPlayer(final String id, final String playerId) {
-        final GetRoomResponse room = rooms.get(id);
+    public void addPlayer(final String roomId, final String playerId) {
+        final List<Player> players = roomsPlayers.get(roomId);
 
-        room.addPlayer(playerId);
+        final Player player = new Player(playerId);
+
+        if (players.contains(player)) {
+            throw new IllegalArgumentException("Player with current id already exist");
+        }
+
+        players.add(player);
+    }
+
+    /**
+     * Returns players in the room
+     *
+     * @param roomId - room id
+     * @return List<Player> - players in the room
+     */
+    @Override
+    public List<Player> getPlayers(final String roomId) {
+        return roomsPlayers.get(roomId);
+    }
+
+    /**
+     * Checks that key with room id exists
+     *
+     * @param roomId - room id
+     * @return boolean - true if room id exists in map
+     */
+    @Override
+    public boolean contains(final String roomId) {
+        return rooms.containsKey(roomId);
     }
 }

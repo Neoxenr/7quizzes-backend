@@ -10,7 +10,7 @@ public interface QuestionRepository {
      *
      * @return List<String> - all available questions ids in questions repository
      */
-    List<String> getQuestionsIds();
+    List<String> getRoomQuestionsIds(String roomId);
 
     /**
      * Return correct answer id on question
@@ -18,7 +18,7 @@ public interface QuestionRepository {
      * @param questionId - question id
      * @return String - correct answer id on question
      */
-    String getCorrectAnswerId(String questionId);
+    String getCorrectAnswerId(String roomId, String questionId);
 
     /**
      * Returns question data by id
@@ -26,12 +26,20 @@ public interface QuestionRepository {
      * @param questionId - question id
      * @return QuestionWithOptions - question data
      */
-    QuestionWithOptions getQuestionById(String questionId);
+    QuestionWithOptions getRoomQuestionById(String roomId, String questionId);
 
     /**
      * Removes question from questions repository by id
      *
      * @param questionId - question id
      */
-    void removeQuestion(String questionId);
+    void removeRoomQuestion(String roomId, String questionId);
+
+    /**
+     * Creates questions for room
+     *
+     * @param roomId - room id
+     * @param questionsCount - questions count
+     */
+    void createRoomQuestions(String roomId, int questionsCount);
 }
