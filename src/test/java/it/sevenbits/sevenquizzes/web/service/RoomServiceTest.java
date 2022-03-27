@@ -72,19 +72,22 @@ public class RoomServiceTest {
     @Test
     public void getRoomTest() {
         final String roomId = UUID.randomUUID().toString();
+        final String roomName = "Test room";
 
-        final RoomWithOptions mockRoom = mock(RoomWithOptions.class);
+        final RoomWithOptions room = new RoomWithOptions(roomId, roomName);
         final List<Player> mockPlayers = mock(List.class);
 
-        when(roomRepository.getRoomById(roomId)).thenReturn(mockRoom);
+        when(roomRepository.getRoomById(roomId)).thenReturn(room);
         when(roomRepository.getPlayers(roomId)).thenReturn(mockPlayers);
 
         final GetRoomResponse resultRoomResponse = roomService.getRoom(roomId);
+        final RoomWithOptions resultRoom = resultRoomResponse.getRoom();
 
         verify(roomRepository, times(1)).getRoomById(roomId);
         verify(roomRepository, times(1)).getPlayers(roomId);
 
-        Assert.assertEquals(mockRoom, resultRoomResponse.getRoom());
+        Assert.assertEquals(roomId, resultRoom.getRoomId());
+        Assert.assertEquals(roomName, resultRoomResponse.getRoom().getRoomName());
         Assert.assertEquals(mockPlayers, resultRoomResponse.getPlayers());
     }
 

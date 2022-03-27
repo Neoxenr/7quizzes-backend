@@ -5,7 +5,8 @@ import it.sevenbits.sevenquizzes.core.model.player.Player;
 import java.util.List;
 
 public class GetRoomResponse {
-    private final RoomWithOptions room;
+    private final String roomId;
+    private final String roomName;
 
     private final List<Player> players;
 
@@ -16,7 +17,8 @@ public class GetRoomResponse {
      * @param players - players
      */
     public GetRoomResponse(final RoomWithOptions room, final List<Player> players) {
-        this.room = room;
+        this.roomId = room.getRoomId();
+        this.roomName = room.getRoomName();
         this.players = players;
     }
 
@@ -26,7 +28,7 @@ public class GetRoomResponse {
      * @return RoomWithOptions - model for room
      */
     public RoomWithOptions getRoom() {
-        return room;
+        return new RoomWithOptions(roomId, roomName);
     }
 
     /**
