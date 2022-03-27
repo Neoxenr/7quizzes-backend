@@ -23,12 +23,21 @@ public class GetRoomResponse {
     }
 
     /**
-     * Returns RoomWithOptions model
+     * Returns room id
      *
-     * @return RoomWithOptions - model for room
+     * @return String - room id
      */
-    public RoomWithOptions getRoom() {
-        return new RoomWithOptions(roomId, roomName);
+    public String getRoomId() {
+        return roomId;
+    }
+
+    /**
+     * Returns room name
+     *
+     * @return String - room name
+     */
+    public String getRoomName() {
+        return roomName;
     }
 
     /**

@@ -81,13 +81,12 @@ public class RoomServiceTest {
         when(roomRepository.getPlayers(roomId)).thenReturn(mockPlayers);
 
         final GetRoomResponse resultRoomResponse = roomService.getRoom(roomId);
-        final RoomWithOptions resultRoom = resultRoomResponse.getRoom();
 
         verify(roomRepository, times(1)).getRoomById(roomId);
         verify(roomRepository, times(1)).getPlayers(roomId);
 
-        Assert.assertEquals(roomId, resultRoom.getRoomId());
-        Assert.assertEquals(roomName, resultRoomResponse.getRoom().getRoomName());
+        Assert.assertEquals(roomId, resultRoomResponse.getRoomId());
+        Assert.assertEquals(roomName, resultRoomResponse.getRoomName());
         Assert.assertEquals(mockPlayers, resultRoomResponse.getPlayers());
     }
 

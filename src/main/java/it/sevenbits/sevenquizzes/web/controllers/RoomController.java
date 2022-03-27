@@ -75,7 +75,9 @@ public class RoomController {
     @ResponseBody
     public ResponseEntity<GetRoomResponse> getRoom(@PathVariable final String roomId) {
         try {
-            return new ResponseEntity<>(roomService.getRoom(roomId), HttpStatus.OK);
+            final GetRoomResponse response = roomService.getRoom(roomId);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exception) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

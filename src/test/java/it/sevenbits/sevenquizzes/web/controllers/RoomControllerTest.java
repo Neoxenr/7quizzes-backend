@@ -74,7 +74,7 @@ public class RoomControllerTest {
 
         final ResponseEntity<GetRoomResponse> response = roomController.getRoom(roomId);
 
-        Assert.assertEquals(roomId, response.getBody().getRoom().getRoomId());
+        Assert.assertEquals(roomId, response.getBody().getRoomId());
         Assert.assertEquals(1, response.getBody().getPlayers().size());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
