@@ -38,7 +38,7 @@ public class RoomController {
      *
      * @return ResponseEntity<List<RoomWithOptions>> - response with all rooms
      */
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public ResponseEntity<List<RoomWithOptions>> getRooms() {
         try {
             return new ResponseEntity<>(roomService.getRooms().getRooms(), HttpStatus.OK);
@@ -53,7 +53,7 @@ public class RoomController {
      * @param createRoomRequest - createRoomRequest model
      * @return ResponseEntity<CreateRoomResponse> - response with createRoomRequest model
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(value = "", method = RequestMethod.POST)
     public ResponseEntity<CreateRoomResponse> createRoom(@RequestBody final CreateRoomRequest createRoomRequest) {
         try {
             return new ResponseEntity<>(roomService.createRoom(createRoomRequest.getPlayerId(),
