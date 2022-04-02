@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/rooms")
 public class GameController {
     private final GameService gameService;
 
@@ -36,8 +36,7 @@ public class GameController {
      * @param roomId - room id in the game
      * @return ResponseEntity<QuestionLocation> - response body with QuestionLocation model
      */
-    @RequestMapping(value = "/rooms/{roomId}/game/start", method = RequestMethod.POST)
-    @ResponseBody
+    @RequestMapping(value = "/{roomId}/game/start", method = RequestMethod.POST)
     public ResponseEntity<QuestionLocation> postNewGame(@PathVariable final String roomId,
             @RequestBody final StartGameRequest startGameRequest) {
         try {
@@ -60,8 +59,7 @@ public class GameController {
      * @param questionId - question id
      * @return ResponseEntity<QuestionWithOptions> - response body with QuestionWithOptions model
      */
-    @RequestMapping(value = "/rooms/{roomId}/game/question/{questionId}", method = RequestMethod.GET)
-    @ResponseBody
+    @RequestMapping(value = "/{roomId}/game/question/{questionId}", method = RequestMethod.GET)
     public ResponseEntity<QuestionWithOptions> getQuestionData(@PathVariable final String roomId, @PathVariable final String questionId) {
         try {
             final QuestionWithOptions questionWithOptions = gameService.getQuestionData(roomId, questionId);
@@ -82,8 +80,7 @@ public class GameController {
      * @param answerQuestionRequest - request body
      * @return ResponseEntity<AnswerQuestionResponse> - response body with AnswerQuestionResponse model
      */
-    @RequestMapping(value = "/rooms/{roomId}/game/question/{questionId}/answer", method = RequestMethod.POST)
-    @ResponseBody
+    @RequestMapping(value = "{roomId}/game/question/{questionId}/answer", method = RequestMethod.POST)
     public ResponseEntity<?> postAnswer(@PathVariable final String roomId,
             @PathVariable final String questionId,
             @RequestBody final AnswerQuestionRequest answerQuestionRequest) {
@@ -109,8 +106,7 @@ public class GameController {
      * @param roomId - room id
      * @return ResponseEntity<GameStatus> - game status
      */
-    @RequestMapping(value = "/rooms/{roomId}/game", method = RequestMethod.GET)
-    @ResponseBody
+    @RequestMapping(value = "/{roomId}/game", method = RequestMethod.GET)
     public ResponseEntity<GameStatus> getGameStatus(@PathVariable final String roomId) {
         try {
             return new ResponseEntity<>(gameService.getGameStatus(roomId), HttpStatus.OK);

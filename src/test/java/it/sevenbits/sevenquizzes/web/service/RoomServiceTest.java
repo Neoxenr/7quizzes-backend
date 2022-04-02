@@ -1,10 +1,12 @@
 package it.sevenbits.sevenquizzes.web.service;
 
+import it.sevenbits.sevenquizzes.core.model.game.Game;
 import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomsResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
+import it.sevenbits.sevenquizzes.core.repository.GameRepository;
 import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
 import org.junit.Assert;
 import org.junit.Before;

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,6 +20,7 @@ import java.util.List;
  * Controller for room resource
  */
 @RestController
+@RequestMapping("/rooms")
 public class RoomController {
     private final RoomService roomService;
 
@@ -38,8 +38,7 @@ public class RoomController {
      *
      * @return ResponseEntity<List<RoomWithOptions>> - response with all rooms
      */
-    @RequestMapping(value = "/rooms", method = RequestMethod.GET)
-    @ResponseBody
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<List<RoomWithOptions>> getRooms() {
         try {
             return new ResponseEntity<>(roomService.getRooms().getRooms(), HttpStatus.OK);
@@ -54,8 +53,7 @@ public class RoomController {
      * @param createRoomRequest - createRoomRequest model
      * @return ResponseEntity<CreateRoomResponse> - response with createRoomRequest model
      */
-    @RequestMapping(value = "/rooms", method = RequestMethod.POST)
-    @ResponseBody
+    @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<CreateRoomResponse> createRoom(@RequestBody final CreateRoomRequest createRoomRequest) {
         try {
             return new ResponseEntity<>(roomService.createRoom(createRoomRequest.getPlayerId(),
@@ -71,8 +69,7 @@ public class RoomController {
      * @param roomId - roomId
      * @return ResponseEntity<GetRoomResponse> - response with room
      */
-    @RequestMapping(value = "/rooms/{roomId}", method = RequestMethod.GET)
-    @ResponseBody
+    @RequestMapping(value = "/{roomId}", method = RequestMethod.GET)
     public ResponseEntity<GetRoomResponse> getRoom(@PathVariable final String roomId) {
         try {
             final GetRoomResponse response = roomService.getRoom(roomId);
@@ -88,10 +85,9 @@ public class RoomController {
      *
      * @param roomId - room id
      * @param joinRoomRequest - joinRoomRequest model
-     * @return
+     * @return ResponseEntity<?> - response with http status code
      */
-    @RequestMapping(value = "/rooms/{roomId}/join", method = RequestMethod.POST)
-    @ResponseBody
+    @RequestMapping(value = "/{roomId}/join", method = RequestMethod.POST)
     public ResponseEntity<?> joinRoom(@PathVariable final String roomId, @RequestBody final JoinRoomRequest joinRoomRequest) {
         try {
             roomService.joinRoom(roomId, joinRoomRequest.getPlayerId());

@@ -1,8 +1,6 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
 import it.sevenbits.sevenquizzes.core.model.game.Game;
-import it.sevenbits.sevenquizzes.core.model.game.GameScore;
-import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
 
 import java.util.List;
 
@@ -17,20 +15,12 @@ public interface GameRepository {
     Game addGame(String roomId, int questionsCount);
 
     /**
-     * Returns game score
+     * Gets game by room id
      *
      * @param roomId - room id
-     * @return GameScore - model for game score
+     * @return Game - game
      */
-    GameScore getGameScore(String roomId);
-
-    /**
-     * Returns game status
-     *
-     * @param roomId - room id
-     * @return GameStatus - model for game status
-     */
-    GameStatus getGameStatus(String roomId);
+    Game getGame(String roomId);
 
     /**
      * Returns all games in repository
@@ -46,4 +36,11 @@ public interface GameRepository {
      * @return boolean - true if game with room id exists
      */
     boolean contains(String roomId);
+
+    /**
+     * Removes game by room id
+     *
+     * @param roomId - room id
+     */
+    void remove(String roomId);
 }

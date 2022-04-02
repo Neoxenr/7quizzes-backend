@@ -3,6 +3,7 @@ package it.sevenbits.sevenquizzes.web.service;
 import it.sevenbits.sevenquizzes.core.model.game.Game;
 import it.sevenbits.sevenquizzes.core.model.game.GameScore;
 import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
+import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
@@ -11,6 +12,7 @@ import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
 import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -38,7 +40,7 @@ public class GameService {
      *
      * @return QuestionLocation - model with question id
      */
-    public QuestionLocation startGame(final String roomId, final String playerId) throws Exception {
+    public QuestionLocation startGame(final String roomId, final String playerId) {
         if (!roomRepository.contains(roomId)) {
             throw new NullPointerException("Room with id = " + roomId + "does not exist");
         }
@@ -50,11 +52,11 @@ public class GameService {
         final int questionsCount = 2;
         final Game game = gameRepository.addGame(roomId, questionsCount);
 
-        final GameScore gameScore = game.getGameScore();
+        for (final Player player : roomRepository.getPlayers(roomId)) {
+            game.addGameScore(player.getPlayerId());
+        }
+
         final GameStatus gameStatus = game.getGameStatus();
-
-        System.out.println(gameScore);
-
         gameStatus.setStatus("started");
 
         questionRepository.createRoomQuestions(roomId, questionsCount);
@@ -87,14 +89,18 @@ public class GameService {
      */
     public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
             final String questionId, final String answerId) throws Exception {
-        if (!roomRepository.contains(roomId) || !gameRepository.contains(roomId)) {
+        if (!roomRepository.contains(roomId)) {
             throw new NullPointerException("Room with id = " + roomId + " does not exist");
         }
 
-        final GameStatus gameStatus = gameRepository.getGameStatus(roomId);
-        final GameScore gameScore = gameRepository.getGameScore(roomId);
+        final Game game = gameRepository.getGame(roomId);
 
-        if (!gameStatus.getQuestionId().equals(questionId)) {
+        final GameStatus gameStatus = game.getGameStatus();
+        final GameScore gameScore = game.getGameScore(playerId);
+
+        final List<String> answeredPlayers = game.getAnsweredPlayers();
+
+        if (!gameStatus.getQuestionId().equals(questionId) || answeredPlayers.contains(playerId)) {
             return new AnswerQuestionResponse(null, null,
                     gameScore.getTotalScore(), gameScore.getQuestionScore());
         }
@@ -102,11 +108,16 @@ public class GameService {
         if (!gameStatus.getStatus().equals("ended")) {
             final String correctAnswerId = questionRepository.getCorrectAnswerId(roomId, questionId);
 
-            if (answerId.equals(correctAnswerId)) {
-                final int questionMark = 5;
+            game.addAnsweredPlayer(playerId);
 
-                gameScore.updateScore(questionMark);
-                gameStatus.updateQuestionNumber();
+            if (answerId.equals(correctAnswerId) || answeredPlayers.size() ==
+                    roomRepository.getPlayers(roomId).size()) {
+                if (answerId.equals(correctAnswerId)) {
+                    final int questionMark = 5;
+
+                    gameScore.updateScore(questionMark);
+                    gameStatus.updateQuestionNumber();
+                }
 
                 questionRepository.removeRoomQuestion(roomId, questionId);
 
@@ -115,9 +126,12 @@ public class GameService {
 
                 if (questionNumber == questionsCount) {
                     gameStatus.setStatus("ended");
+                    gameRepository.remove(roomId);
                     return new AnswerQuestionResponse(correctAnswerId, null,
                             gameScore.getTotalScore(), gameScore.getQuestionScore());
                 }
+
+                game.setAnsweredPlayers(new ArrayList<>());
 
                 List<String> questionsIds = questionRepository.getRoomQuestionsIds(roomId);
                 final String newQuestionId = selectQuestionId(questionsIds);
@@ -139,7 +153,7 @@ public class GameService {
      * @return GameStatus - game status
      */
     public GameStatus getGameStatus(final String roomId) {
-        return gameRepository.getGameStatus(roomId);
+        return gameRepository.getGame(roomId).getGameStatus();
     }
 
     /**

@@ -77,7 +77,7 @@ public class RoomRepositoryStatic implements RoomRepository {
         final Player player = new Player(playerId);
 
         if (players.contains(player)) {
-            throw new IllegalArgumentException("Player with current id already exist");
+            throw new IllegalArgumentException("Player with current id already exists");
         }
 
         players.add(player);

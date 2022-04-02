@@ -1,8 +1,6 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
 import it.sevenbits.sevenquizzes.core.model.game.Game;
-import it.sevenbits.sevenquizzes.core.model.game.GameScore;
-import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,23 +34,13 @@ public class GameRepositoryStatic implements GameRepository {
     }
 
     /**
-     * Returns game score
+     * Gets game by room id
      *
      * @param roomId - room id
-     * @return GameScore - game score
+     * @return Game - game entity
      */
-    public GameScore getGameScore(final String roomId) {
-        return games.get(roomId).getGameScore();
-    }
-
-    /**
-     * Returns game status
-     *
-     * @param roomId - room id
-     * @return GameStatus - game status
-     */
-    public GameStatus getGameStatus(final String roomId) {
-        return games.get(roomId).getGameStatus();
+    public Game getGame(final String roomId) {
+        return games.get(roomId);
     }
 
     /**
@@ -72,5 +60,10 @@ public class GameRepositoryStatic implements GameRepository {
     @Override
     public boolean contains(final String roomId) {
         return games.containsKey(roomId);
+    }
+
+    @Override
+    public void remove(final String roomId) {
+        games.remove(roomId);
     }
 }

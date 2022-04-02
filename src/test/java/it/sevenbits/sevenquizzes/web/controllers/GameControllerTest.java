@@ -1,5 +1,6 @@
 package it.sevenbits.sevenquizzes.web.controllers;
 
+import it.sevenbits.sevenquizzes.core.model.game.Game;
 import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
 import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
 import it.sevenbits.sevenquizzes.core.model.question.IncorrectAnswerQuestionResponse;
@@ -119,14 +120,16 @@ public class GameControllerTest {
         final String roomId = UUID.randomUUID().toString();
 
         roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 2);
+        final Game game = gameRepository.addGame(roomId, 2);
         questionRepository.createRoomQuestions(roomId, 2);
+
+        game.addGameScore(playerId);
 
         final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
         final QuestionWithOptions question = questionRepository.getRoomQuestionById(roomId, roomQuestionsIds.get(0));
         final String answerId = question.getAnswersList().get(0).getAnswerId();
 
-        final GameStatus gameStatus = gameRepository.getGameStatus(roomId);
+        final GameStatus gameStatus = gameRepository.getGame(roomId).getGameStatus();
         gameStatus.setQuestionId(question.getQuestionId());
         gameStatus.setStatus("started");
 
@@ -147,14 +150,16 @@ public class GameControllerTest {
         final String roomId = UUID.randomUUID().toString();
 
         roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 1);
+        final Game game = gameRepository.addGame(roomId, 1);
         questionRepository.createRoomQuestions(roomId, 1);
+
+        game.addGameScore(playerId);
 
         final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
         final QuestionWithOptions question = questionRepository.getRoomQuestionById(roomId, roomQuestionsIds.get(0));
         final String answerId = question.getAnswersList().get(0).getAnswerId();
 
-        final GameStatus gameStatus = gameRepository.getGameStatus(roomId);
+        final GameStatus gameStatus = gameRepository.getGame(roomId).getGameStatus();
         gameStatus.setQuestionId(UUID.randomUUID().toString());
         gameStatus.setStatus("started");
 
@@ -173,7 +178,7 @@ public class GameControllerTest {
         final String roomId = UUID.randomUUID().toString();
 
         roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 1);
+        gameRepository.addGame(roomId,  1);
         questionRepository.createRoomQuestions(roomId, 1);
 
         final AnswerQuestionRequest request = new AnswerQuestionRequest(playerId, UUID.randomUUID().toString());

@@ -28,6 +28,8 @@ public class GameRepositoryStaticTest {
     @Test
     public void addGameTest() {
         final String roomId = UUID.randomUUID().toString();
+        final String playerId = UUID.randomUUID().toString();
+
         final int gameQuestionsCount = 10;
 
         final Game gameMock = mock(Game.class);
@@ -45,16 +47,18 @@ public class GameRepositoryStaticTest {
     @Test
     public void getGameScoreTest() {
         final String roomId = UUID.randomUUID().toString();
+        final String playerId = UUID.randomUUID().toString();
 
         final Game gameMock = mock(Game.class);
         final GameScore gameScoreMock = mock(GameScore.class);
 
         when(mockGames.get(roomId)).thenReturn(gameMock);
-        when(gameMock.getGameScore()).thenReturn(gameScoreMock);
+        when(gameMock.getGameScore(playerId)).thenReturn(gameScoreMock);
 
-        final GameScore gameScore = gameRepository.getGameScore(roomId);
+        final GameScore gameScore = gameRepository.getGame(roomId).getGameScore(playerId);
 
         verify(mockGames, times(1)).get(roomId);
+        verify(gameMock, times(1)).getGameScore(playerId);
 
         Assert.assertEquals(gameScore, gameScoreMock);
     }
@@ -69,7 +73,7 @@ public class GameRepositoryStaticTest {
         when(mockGames.get(roomId)).thenReturn(gameMock);
         when(gameMock.getGameStatus()).thenReturn(gameStatusMock);
 
-        final GameStatus gameStatus = gameRepository.getGameStatus(roomId);
+        final GameStatus gameStatus = gameRepository.getGame(roomId).getGameStatus();
 
         verify(mockGames, times(1)).get(roomId);
 

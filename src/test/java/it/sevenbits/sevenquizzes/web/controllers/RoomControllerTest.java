@@ -4,6 +4,8 @@ import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
+import it.sevenbits.sevenquizzes.core.repository.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.GameRepositoryStatic;
 import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
 import it.sevenbits.sevenquizzes.core.repository.RoomRepositoryStatic;
 import it.sevenbits.sevenquizzes.web.model.room.CreateRoomRequest;
@@ -23,11 +25,15 @@ public class RoomControllerTest {
     private RoomController roomController;
 
     private RoomService roomService;
+
     private RoomRepository roomRepository;
+    private GameRepository gameRepository;
 
     @Before
     public void setUp() {
         roomRepository = new RoomRepositoryStatic(new HashMap<>(), new HashMap<>());
+        gameRepository = new GameRepositoryStatic(new HashMap<>());
+
         roomService = new RoomService(roomRepository);
 
         roomController = new RoomController(roomService);
