@@ -1,57 +1,72 @@
 package it.sevenbits.sevenquizzes.web.service;
 
-import it.sevenbits.sevenquizzes.core.model.AnswerQuestionResponse;
-import it.sevenbits.sevenquizzes.core.model.GameScore;
-import it.sevenbits.sevenquizzes.core.model.QuestionLocation;
-import it.sevenbits.sevenquizzes.core.model.QuestionWithOptions;
+import it.sevenbits.sevenquizzes.core.model.game.Game;
+import it.sevenbits.sevenquizzes.core.model.game.GameScore;
+import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
+import it.sevenbits.sevenquizzes.core.model.player.Player;
+import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
+import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
 import it.sevenbits.sevenquizzes.core.repository.GameRepository;
 import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Service
 public class GameService {
     private final QuestionRepository questionRepository;
     private final GameRepository gameRepository;
+    private final RoomRepository roomRepository;
 
     /**
      * GameService constructor
      *
      * @param questionRepository - question repository
-     * @param gameRepository - game repository
+     * @param gameRepository     - game repository
      */
-    public GameService(final QuestionRepository questionRepository, final GameRepository gameRepository) {
+    public GameService(final QuestionRepository questionRepository, final GameRepository gameRepository,
+            final RoomRepository roomRepository) {
         this.questionRepository = questionRepository;
         this.gameRepository = gameRepository;
+        this.roomRepository = roomRepository;
     }
 
     /**
-     * Returns model with questino id
+     * Returns model with question id
      *
      * @return QuestionLocation - model with question id
      */
-    public QuestionLocation startGame() {
-        GameScore gameScore = gameRepository.getGameScore();
+    public QuestionLocation startGame(final String roomId, final String playerId) {
+        if (!roomRepository.contains(roomId)) {
+            throw new NullPointerException("Room with id = " + roomId + "does not exist");
+        }
 
-        System.out.println(gameScore);
+        if (gameRepository.contains(roomId)) {
+            throw new RuntimeException("Game for room with id = " + roomId + "has been already started");
+        }
 
-        final Set<String> questionsIds = questionRepository.getQuestionsIds();
-        final String questionId = selectQuestionId(questionsIds);
+        final int questionsCount = 2;
+        final Game game = gameRepository.addGame(roomId, questionsCount);
+
+        for (final Player player : roomRepository.getPlayers(roomId)) {
+            game.addGameScore(player.getPlayerId());
+        }
+
+        final GameStatus gameStatus = game.getGameStatus();
+        gameStatus.setStatus("started");
+
+        questionRepository.createRoomQuestions(roomId, questionsCount);
+
+        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
+        final String questionId = selectQuestionId(roomQuestionsIds);
+
+        gameStatus.setQuestionId(questionId);
 
         return new QuestionLocation(questionId);
-    }
-
-    /**
-     * Return next question id
-     *
-     * @param questionsIds - questions ids
-     * @return String - next question id
-     */
-    public String selectQuestionId(final Set<String> questionsIds) {
-        return new ArrayList<>(questionsIds).get(new Random().nextInt(questionsIds.size()));
     }
 
     /**
@@ -60,72 +75,94 @@ public class GameService {
      * @param questionId - question id
      * @return QuestionWithOptions - model with question data
      */
-    public QuestionWithOptions getQuestion(final String questionId) {
-        return questionRepository.getQuestionById(questionId);
+    public QuestionWithOptions getQuestionData(final String roomId, final String questionId) {
+        return questionRepository.getRoomQuestionById(roomId, questionId);
     }
 
     /**
      * Returns model with game statistics, right answer id, next question id
      *
      * @param questionId - question id
-     * @param answerId - answer id
+     * @param answerId   - answer id
      * @return AnswerQuestionResponse - model with game statistics, right answer id, next question id
      * @throws Exception - if game is ended
      */
-    public AnswerQuestionResponse answerQuestion(final String questionId, final String answerId) throws Exception {
-        final int questionsCount = gameRepository.getQuestionsCount();
-        final int questionsAnsweredCount = gameRepository.getQuestionsAnsweredCount();
-
-        if (isGameOver(questionsAnsweredCount, questionsCount)) {
-            throw new Exception("The game is ended");
+    public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
+            final String questionId, final String answerId) throws Exception {
+        if (!roomRepository.contains(roomId)) {
+            throw new NullPointerException("Room with id = " + roomId + " does not exist");
         }
 
-        final String correctAnswerId = questionRepository.getCorrectAnswerId(questionId);
+        final Game game = gameRepository.getGame(roomId);
 
-        if (isRightAnswer(answerId, correctAnswerId)) {
-            final int questionMark = 5;
-            gameRepository.updateGameScore(questionMark);
-        }
+        final GameStatus gameStatus = game.getGameStatus();
+        final GameScore gameScore = game.getGameScore(playerId);
 
-        questionRepository.removeQuestion(questionId);
+        final List<String> answeredPlayers = game.getAnsweredPlayers();
 
-        gameRepository.updateQuestionsAnsweredCount();
-
-        final GameScore gameScore = gameRepository.getGameScore();
-        System.out.println(gameScore);
-
-        if (isGameOver(questionsAnsweredCount, questionsCount)) {
-            return new AnswerQuestionResponse(correctAnswerId, null,
+        if (!gameStatus.getQuestionId().equals(questionId) || answeredPlayers.contains(playerId)) {
+            return new AnswerQuestionResponse(null, null,
                     gameScore.getTotalScore(), gameScore.getQuestionScore());
         }
 
-        Set<String> questionsIds = questionRepository.getQuestionsIds();
+        if (!gameStatus.getStatus().equals("ended")) {
+            final String correctAnswerId = questionRepository.getCorrectAnswerId(roomId, questionId);
 
-        final String nextQuestionId = selectQuestionId(questionsIds);
+            game.addAnsweredPlayer(playerId);
 
-        return new AnswerQuestionResponse(correctAnswerId, nextQuestionId,
-                gameScore.getTotalScore(), gameScore.getQuestionScore());
+            if (answerId.equals(correctAnswerId) || answeredPlayers.size() ==
+                    roomRepository.getPlayers(roomId).size()) {
+                if (answerId.equals(correctAnswerId)) {
+                    final int questionMark = 5;
+
+                    gameScore.updateScore(questionMark);
+                    gameStatus.updateQuestionNumber();
+                }
+
+                questionRepository.removeRoomQuestion(roomId, questionId);
+
+                final int questionsCount = gameStatus.getQuestionsCount();
+                final int questionNumber = gameStatus.getQuestionNumber();
+
+                if (questionNumber == questionsCount) {
+                    gameStatus.setStatus("ended");
+                    gameRepository.remove(roomId);
+                    return new AnswerQuestionResponse(correctAnswerId, null,
+                            gameScore.getTotalScore(), gameScore.getQuestionScore());
+                }
+
+                game.setAnsweredPlayers(new ArrayList<>());
+
+                List<String> questionsIds = questionRepository.getRoomQuestionsIds(roomId);
+                final String newQuestionId = selectQuestionId(questionsIds);
+
+                gameStatus.setQuestionId(newQuestionId);
+            }
+
+            return new AnswerQuestionResponse(correctAnswerId, gameStatus.getQuestionId(),
+                    gameScore.getTotalScore(), gameScore.getQuestionScore());
+        }
+
+        throw new Exception("The game is ended");
     }
 
     /**
-     * Returns result of comparison answer id and correct answer id
+     * Returns game status
      *
-     * @param answerId - answer id
-     * @param correctAnswerId - correct answer id
-     * @return boolean - result of comparison answer id and correct answer id
+     * @param roomId - room id
+     * @return GameStatus - game status
      */
-    public boolean isRightAnswer(final String answerId, final String correctAnswerId) {
-        return answerId.equals(correctAnswerId);
+    public GameStatus getGameStatus(final String roomId) {
+        return gameRepository.getGame(roomId).getGameStatus();
     }
 
     /**
-     * Return result of comparison questions answered count and questions count
+     * Return next question id
      *
-     * @param questionsAnsweredCount - questions answered count
-     * @param questionsCount - question count in the game
-     * @return boolean - result of comparison questions answered count and questions count
+     * @param questionsIds - questions ids
+     * @return String - next question id
      */
-    public boolean isGameOver(final int questionsAnsweredCount, final int questionsCount) {
-        return questionsAnsweredCount >= questionsCount;
+    private String selectQuestionId(final List<String> questionsIds) {
+        return questionsIds.get(new Random().nextInt(questionsIds.size()));
     }
 }

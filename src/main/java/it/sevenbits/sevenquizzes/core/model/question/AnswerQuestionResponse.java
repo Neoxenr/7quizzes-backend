@@ -1,9 +1,9 @@
-package it.sevenbits.sevenquizzes.core.model;
+package it.sevenbits.sevenquizzes.core.model.question;
 
 public class AnswerQuestionResponse {
     private final String correctAnswerId;
 
-    private final String nextQuestionId;
+    private final String questionId;
 
     private final int totalScore;
 
@@ -13,14 +13,14 @@ public class AnswerQuestionResponse {
      * AnswerQuestionResponse constructor
      *
      * @param correctAnswerId - correct answer id on question
-     * @param nextQuestionId - next question id
-     * @param totalScore - total game score
-     * @param questionScore - total question score
+     * @param questionId      - current question id
+     * @param totalScore      - total game score
+     * @param questionScore   - total question score
      */
-    public AnswerQuestionResponse(final String correctAnswerId, final String nextQuestionId,
+    public AnswerQuestionResponse(final String correctAnswerId, final String questionId,
             final int totalScore, final int questionScore) {
         this.correctAnswerId = correctAnswerId;
-        this.nextQuestionId = nextQuestionId;
+        this.questionId = questionId;
         this.totalScore = totalScore;
         this.questionScore = questionScore;
     }
@@ -29,8 +29,8 @@ public class AnswerQuestionResponse {
         return correctAnswerId;
     }
 
-    public String getNextQuestionId() {
-        return nextQuestionId;
+    public String getQuestionId() {
+        return questionId;
     }
 
     public int getTotalScore() {

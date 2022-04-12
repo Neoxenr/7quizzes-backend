@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.model;
+package it.sevenbits.sevenquizzes.core.model.question;
 
 public class QuestionAnswer {
     private final String answerId;
@@ -7,7 +7,7 @@ public class QuestionAnswer {
     /**
      * QuestionAnswer constructor
      *
-     * @param answerId - answer id on question
+     * @param answerId   - answer id on question
      * @param answerText - answer text on question
      */
     public QuestionAnswer(final String answerId, final String answerText) {

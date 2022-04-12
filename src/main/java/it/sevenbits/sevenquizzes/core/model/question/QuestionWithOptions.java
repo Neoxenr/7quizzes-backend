@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.model;
+package it.sevenbits.sevenquizzes.core.model.question;
 
 import java.util.List;
 
@@ -12,9 +12,9 @@ public class QuestionWithOptions {
     /**
      * QuestionWithOptions constructor
      *
-     * @param questionId - question id
+     * @param questionId   - question id
      * @param questionText - question text
-     * @param answersList - answers list on question
+     * @param answersList  - answers list on question
      */
     public QuestionWithOptions(final String questionId, final String questionText, final List<QuestionAnswer> answersList) {
         this.questionId = questionId;

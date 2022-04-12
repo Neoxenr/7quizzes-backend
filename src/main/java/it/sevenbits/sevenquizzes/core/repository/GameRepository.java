@@ -1,38 +1,46 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
-import it.sevenbits.sevenquizzes.core.model.GameScore;
+import it.sevenbits.sevenquizzes.core.model.game.Game;
+
+import java.util.List;
 
 public interface GameRepository {
     /**
-     * Returns questions count
+     * Adds new game to repository
      *
-     * @return int - questions count in the game
+     * @param roomId - room id
+     * @param questionsCount - questions count
+     * @return Game - new game
      */
-    int getQuestionsCount();
+    Game addGame(String roomId, int questionsCount);
 
     /**
-     * Return answered questions count in the game
+     * Gets game by room id
      *
-     * @return int - answered questions count in the game
+     * @param roomId - room id
+     * @return Game - game
      */
-    int getQuestionsAnsweredCount();
+    Game getGame(String roomId);
 
     /**
-     * Updates correct answers
+     * Returns all games in repository
+     *
+     * @return List<Game> - all games in repository
      */
-    void updateQuestionsAnsweredCount();
+    List<Game> getGames();
 
     /**
-     * Updates game score
+     * Checks that key with game id exists
      *
-     * @param questionMark - score for right answer on question
+     * @param roomId - room id
+     * @return boolean - true if game with room id exists
      */
-    void updateGameScore(int questionMark);
+    boolean contains(String roomId);
 
     /**
-     * Returns game score model
+     * Removes game by room id
      *
-     * @return GameScore - game score model
+     * @param roomId - room id
      */
-    GameScore getGameScore();
+    void remove(String roomId);
 }

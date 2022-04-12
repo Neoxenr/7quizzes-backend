@@ -1,67 +1,69 @@
 package it.sevenbits.sevenquizzes.core.repository;
 
-import it.sevenbits.sevenquizzes.core.model.GameScore;
+import it.sevenbits.sevenquizzes.core.model.game.Game;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class GameRepositoryStatic implements GameRepository {
-    private final int questionsCount = 5;
-
-    private int questionsAnsweredCount = 0;
-
-    private final GameScore gameScore;
+    private final Map<String, Game> games;
 
     /**
-     * GameRepositoryStatic constructor
-     */
-    public GameRepositoryStatic() {
-        gameScore = new GameScore();
-    }
-
-    /**
-     * Returns questions count
+     * GameRepositoryStatic constuctor
      *
-     * @return int - questions count in the game
+     * @param games - games
      */
-    @Override
-    public int getQuestionsCount() {
-        return questionsCount;
+    public GameRepositoryStatic(final Map<String, Game> games) {
+        this.games = games;
     }
 
     /**
-     * Return answered questions count in the game
+     * Creates new game
      *
-     * @return int - answered questions count in the game
+     * @param roomId - room id
+     * @param questionCount - questions count
+     * @return Game - new game
      */
-    @Override
-    public int getQuestionsAnsweredCount() {
-        return questionsAnsweredCount;
+    public Game addGame(final String roomId, final int questionCount) {
+        final Game game = new Game(questionCount);
+
+        games.put(roomId, game);
+
+        return game;
     }
 
     /**
-     * Returns game score model
+     * Gets game by room id
      *
-     * @return GameScore - game score model
+     * @param roomId - room id
+     * @return Game - game entity
      */
-    @Override
-    public GameScore getGameScore() {
-        return gameScore;
+    public Game getGame(final String roomId) {
+        return games.get(roomId);
     }
 
     /**
-     * Updates correct answers
-     */
-    @Override
-    public void updateQuestionsAnsweredCount() {
-        questionsAnsweredCount++;
-    }
-
-    /**
-     * Updates game score
+     * Returns all games in repository
      *
-     * @param questionMark - score for right answer on question
+     * @return List<Game>
+     */
+    public List<Game> getGames() {
+        return new ArrayList<>(games.values());
+    }
+
+    /**
+     *
+     * @param roomId - room id
+     * @return boolean - true if game with room id exists
      */
     @Override
-    public void updateGameScore(final int questionMark) {
-        gameScore.updateTotalScore(questionMark);
-        gameScore.updateQuestionScore();
+    public boolean contains(final String roomId) {
+        return games.containsKey(roomId);
+    }
+
+    @Override
+    public void remove(final String roomId) {
+        games.remove(roomId);
     }
 }
