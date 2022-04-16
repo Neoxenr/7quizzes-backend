@@ -136,6 +136,8 @@ public class GameControllerTest {
         final QuestionWithOptions question = questionRepository.getById(roomQuestionsIds.get(0));
         final String answerId = question.getAnswersList().get(0).getAnswerId();
 
+        game.addPreviousQuestionId(question.getQuestionId());
+
         final GameStatus gameStatus = gameRepository.getById(roomId).getGameStatus();
         gameStatus.setQuestionId(question.getQuestionId());
         gameStatus.setStatus("started");
@@ -144,7 +146,7 @@ public class GameControllerTest {
 
         final ResponseEntity<AnswerQuestionResponse> response = (ResponseEntity<AnswerQuestionResponse>) gameController.postAnswer(roomId, question.getQuestionId(), request);
 
-        Assert.assertEquals(answerId, response.getBody().getCorrectAnswerId());
+        Assert.assertEquals(answerId, Objects.requireNonNull(response.getBody()).getCorrectAnswerId());
         Assert.assertEquals(roomQuestionsIds.get(1), response.getBody().getQuestionId());
         Assert.assertEquals(5, response.getBody().getTotalScore());
         Assert.assertEquals(1, response.getBody().getQuestionScore());

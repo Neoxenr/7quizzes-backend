@@ -15,6 +15,11 @@ import java.util.Objects;
 public class PostgresRoomRepository implements RoomRepository {
     private final JdbcOperations jdbcOperations;
 
+    /**
+     * Constructor
+     *
+     * @param jdbcOperations - jdbc operations
+     */
     public PostgresRoomRepository(final JdbcOperations jdbcOperations) {
         this.jdbcOperations = jdbcOperations;
     }
@@ -52,7 +57,7 @@ public class PostgresRoomRepository implements RoomRepository {
         jdbcOperations.update(
                 "INSERT INTO room (id, name, users_id) VALUES (?, ?, ?)",
                 roomId, roomName, Objects.requireNonNull(((JdbcTemplate) jdbcOperations).getDataSource())
-                        .getConnection().createArrayOf("text", players.toArray())
+                .getConnection().createArrayOf("text", players.toArray())
         );
 
         return new CreateRoomResponse(roomId, roomName, players);
@@ -61,7 +66,7 @@ public class PostgresRoomRepository implements RoomRepository {
     @Override
     public void update(final String roomId, final String playerId) throws SQLException {
         final List<Player> roomPlayers = getPlayers(roomId);
-        System.out.println(roomPlayers);
+
         final Player newPlayer = new Player(playerId);
 
         if (roomPlayers.contains(newPlayer)) {
@@ -73,7 +78,7 @@ public class PostgresRoomRepository implements RoomRepository {
         jdbcOperations.update(
                 "UPDATE room SET users_id = ? WHERE id = ?",
                 Objects.requireNonNull(((JdbcTemplate) jdbcOperations).getDataSource())
-                        .getConnection().createArrayOf("text", roomPlayers.toArray()), roomId
+                .getConnection().createArrayOf("text", roomPlayers.toArray()), roomId
         );
     }
 

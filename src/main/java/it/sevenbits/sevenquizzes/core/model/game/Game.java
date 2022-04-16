@@ -43,6 +43,11 @@ public class Game {
         answeredPlayers.add(playerId);
     }
 
+    /**
+     * Add question id to previous questions id in the game
+     *
+     * @param questionId - previous question id
+     */
     public void addPreviousQuestionId(final String questionId) {
         previousQuestionsId.add(questionId);
     }

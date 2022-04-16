@@ -14,6 +14,11 @@ import java.util.Objects;
 public class PostgresQuestionRepository implements QuestionRepository {
     private final JdbcOperations jdbcOperations;
 
+    /**
+     * Constructor
+     *
+     * @param jdbcOperations - jdbc operations
+     */
     public PostgresQuestionRepository(final JdbcOperations jdbcOperations) {
         this.jdbcOperations = jdbcOperations;
     }
@@ -73,7 +78,7 @@ public class PostgresQuestionRepository implements QuestionRepository {
         jdbcOperations.update(
                 "UPDATE room SET questions_id = ? WHERE id = ?",
                 Objects.requireNonNull(((JdbcTemplate) jdbcOperations).getDataSource())
-                        .getConnection().createArrayOf("text", questionsId.toArray()), roomId
+                .getConnection().createArrayOf("text", questionsId.toArray()), roomId
         );
     }
 }

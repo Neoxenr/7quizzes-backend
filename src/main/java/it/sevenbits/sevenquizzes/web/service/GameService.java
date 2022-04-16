@@ -30,7 +30,7 @@ public class GameService {
      * @param gameRepository     - game repository
      */
     public GameService(final QuestionRepository questionRepository, final GameRepository gameRepository,
-                       final RoomRepository roomRepository) {
+            final RoomRepository roomRepository) {
         this.questionRepository = questionRepository;
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
@@ -64,11 +64,7 @@ public class GameService {
 
         final List<String> roomQuestionsId = questionRepository.getRoomQuestionsId(roomId);
 
-        String questionId = selectQuestionId(roomQuestionsId);
-        while (game.getPreviousQuestionsId().contains(questionId)) {
-            questionId = selectQuestionId(roomQuestionsId);
-        }
-
+        String questionId = selectQuestionId(roomQuestionsId, game.getPreviousQuestionsId());
         game.addPreviousQuestionId(questionId);
 
         gameStatus.setQuestionId(questionId);
@@ -98,7 +94,7 @@ public class GameService {
      * @throws Exception - if game is ended
      */
     public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
-                                                 final String questionId, final String answerId) throws Exception {
+            final String questionId, final String answerId) throws Exception {
         final Game game = gameRepository.getById(roomId);
 
         final GameStatus gameStatus = game.getGameStatus();
@@ -138,7 +134,9 @@ public class GameService {
                 game.setAnsweredPlayers(new ArrayList<>());
 
                 List<String> questionsIds = questionRepository.getRoomQuestionsId(roomId);
-                final String newQuestionId = selectQuestionId(questionsIds);
+                final String newQuestionId = selectQuestionId(questionsIds, game.getPreviousQuestionsId());
+
+                game.addPreviousQuestionId(questionId);
 
                 gameStatus.setQuestionId(newQuestionId);
             }
@@ -166,7 +164,15 @@ public class GameService {
      * @param questionsId - questions ids
      * @return String - next question id
      */
-    private String selectQuestionId(final List<String> questionsId) {
-        return questionsId.get(new Random().nextInt(questionsId.size()));
+    private String selectQuestionId(final List<String> questionsId, final List<String> previousQuestionsId) {
+        final Random random = new Random();
+
+
+        String questionId = questionsId.get(random.nextInt(questionsId.size()));
+        while (previousQuestionsId.contains(questionId)) {
+            questionId = questionsId.get(random.nextInt(questionsId.size()));
+        }
+
+        return questionId;
     }
 }
