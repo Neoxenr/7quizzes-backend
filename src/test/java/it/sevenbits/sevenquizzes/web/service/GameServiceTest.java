@@ -6,13 +6,14 @@ import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
 import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
-import it.sevenbits.sevenquizzes.core.repository.GameRepository;
-import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
-import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void startGameTest() {
+    public void startGameTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
 
@@ -48,17 +49,17 @@ public class GameServiceTest {
         final List<String> questionIds = new ArrayList<>();
         questionIds.add(UUID.randomUUID().toString());
 
-        when(mockGameRepository.addGame(roomId, questionsCount)).thenReturn(mockGame);
+        when(mockGameRepository.create(roomId, questionsCount)).thenReturn(mockGame);
         when(mockGame.getGameStatus()).thenReturn(gameStatus);
         when(mockRoomRepository.contains(roomId)).thenReturn(true);
-        when(mockQuestionRepository.getRoomQuestionsIds(roomId)).thenReturn(questionIds);
+        when(mockQuestionRepository.getRoomQuestionsId(roomId)).thenReturn(questionIds);
 
         final QuestionLocation resultQuestionLocation = gameService.startGame(roomId, playerId);
 
-        verify(mockGameRepository, times(1)).addGame(roomId, questionsCount);
+        verify(mockGameRepository, times(1)).create(roomId, questionsCount);
         verify(mockGame, times(1)).getGameStatus();
         verify(mockRoomRepository, times(1)).contains(roomId);
-        verify(mockQuestionRepository, times(1)).getRoomQuestionsIds(roomId);
+        verify(mockQuestionRepository, times(1)).getRoomQuestionsId(roomId);
 
         Assert.assertEquals("started", gameStatus.getStatus());
         Assert.assertEquals(questionsCount, gameStatus.getQuestionsCount());
@@ -68,15 +69,15 @@ public class GameServiceTest {
     @Test
     public void getQuestionDataTest() {
         final String roomId = UUID.randomUUID().toString();
-        final String playerId = UUID.randomUUID().toString();
+        final String questionId = UUID.randomUUID().toString();
 
         final QuestionWithOptions mockQuestion = mock(QuestionWithOptions.class);
 
-        when(mockQuestionRepository.getRoomQuestionById(roomId, playerId)).thenReturn(mockQuestion);
+        when(mockQuestionRepository.getById(questionId)).thenReturn(mockQuestion);
 
-        final QuestionWithOptions resultQuestion = gameService.getQuestionData(roomId, playerId);
+        final QuestionWithOptions resultQuestion = gameService.getQuestionData(roomId, questionId);
 
-        verify(mockQuestionRepository, times(1)).getRoomQuestionById(roomId, playerId);
+        verify(mockQuestionRepository, times(1)).getById(questionId);
 
         Assert.assertEquals(mockQuestion, resultQuestion);
     }
@@ -99,7 +100,7 @@ public class GameServiceTest {
         final Game mockGame = mock(Game.class);
 
         when(mockRoomRepository.contains(roomId)).thenReturn(true);
-        when(mockGameRepository.getGame(roomId)).thenReturn(mockGame);
+        when(mockGameRepository.getById(roomId)).thenReturn(mockGame);
         when(mockGame.getAnsweredPlayers()).thenReturn(mockAnsweredPlayers);
         when(mockGame.getGameStatus()).thenReturn(mockGameStatus);
         when(mockGame.getGameScore(playerId)).thenReturn(mockGameScore);
@@ -111,7 +112,7 @@ public class GameServiceTest {
                 questionId, answerId);
 
         verify(mockRoomRepository, times(1)).contains(roomId);
-        verify(mockGameRepository, times(1)).getGame(roomId);
+        verify(mockGameRepository, times(1)).getById(roomId);
         verify(mockGame, times(1)).getAnsweredPlayers();
         verify(mockGame, times(1)).getGameStatus();
         verify(mockGame, times(1)).getGameScore(playerId);
@@ -142,18 +143,18 @@ public class GameServiceTest {
         final Game mockGame = mock(Game.class);
 
         when(mockRoomRepository.contains(roomId)).thenReturn(true);
-        when(mockGameRepository.getGame(roomId)).thenReturn(mockGame);
+        when(mockGameRepository.getById(roomId)).thenReturn(mockGame);
         when(mockGame.getGameStatus()).thenReturn(gameStatus);
         when(mockGame.getGameScore(playerId)).thenReturn(gameScore);
-        when(mockQuestionRepository.getCorrectAnswerId(roomId, questionId)).thenReturn(answerId);
+        when(mockQuestionRepository.getCorrectAnswerId(questionId)).thenReturn(answerId);
 
         final AnswerQuestionResponse resultResponse = gameService.answerQuestion(roomId, playerId, questionId, answerId);
 
         verify(mockRoomRepository, times(1)).contains(roomId);
-        verify(mockGameRepository, times(1)).getGame(roomId);
+        verify(mockGameRepository, times(1)).getById(roomId);
         verify(mockGame, times(1)).getGameStatus();
         verify(mockGame, times(1)).getGameScore(playerId);
-        verify(mockQuestionRepository, times(1)).getCorrectAnswerId(roomId, questionId);
+        verify(mockQuestionRepository, times(1)).getCorrectAnswerId(questionId);
 
         Assert.assertEquals(answerId, resultResponse.getCorrectAnswerId());
         Assert.assertNull(resultResponse.getQuestionId());
@@ -182,20 +183,20 @@ public class GameServiceTest {
         questionIds.add(UUID.randomUUID().toString());
 
         when(mockRoomRepository.contains(roomId)).thenReturn(true);
-        when(mockGameRepository.getGame(roomId)).thenReturn(mockGame);
+        when(mockGameRepository.getById(roomId)).thenReturn(mockGame);
         when(mockGame.getGameStatus()).thenReturn(gameStatus);
         when(mockGame.getGameScore(playerId)).thenReturn(gameScore);
-        when(mockQuestionRepository.getCorrectAnswerId(roomId, questionId)).thenReturn(answerId);
-        when(mockQuestionRepository.getRoomQuestionsIds(roomId)).thenReturn(questionIds);
+        when(mockQuestionRepository.getCorrectAnswerId(questionId)).thenReturn(answerId);
+        when(mockQuestionRepository.getRoomQuestionsId(roomId)).thenReturn(questionIds);
 
         final AnswerQuestionResponse resultResponse = gameService.answerQuestion(roomId, playerId, questionId, answerId);
 
         verify(mockRoomRepository, times(1)).contains(roomId);
-        verify(mockGameRepository, times(1)).getGame(roomId);
+        verify(mockGameRepository, times(1)).getById(roomId);
         verify(mockGame, times(1)).getGameStatus();
         verify(mockGame, times(1)).getGameScore(playerId);
-        verify(mockQuestionRepository, times(1)).getCorrectAnswerId(roomId, questionId);
-        verify(mockQuestionRepository, times(1)).getRoomQuestionsIds(roomId);
+        verify(mockQuestionRepository, times(1)).getCorrectAnswerId(questionId);
+        verify(mockQuestionRepository, times(1)).getRoomQuestionsId(roomId);
 
         Assert.assertEquals(answerId, resultResponse.getCorrectAnswerId());
         Assert.assertEquals(gameStatus.getQuestionId(), resultResponse.getQuestionId());
@@ -210,12 +211,12 @@ public class GameServiceTest {
         final Game mockGame = mock(Game.class);
         final GameStatus mockGameStatus = mock(GameStatus.class);
 
-        when(mockGameRepository.getGame(roomId)).thenReturn(mockGame);
+        when(mockGameRepository.getById(roomId)).thenReturn(mockGame);
         when(mockGame.getGameStatus()).thenReturn(mockGameStatus);
 
         final GameStatus resultGameStatus = gameService.getGameStatus(roomId);
 
-        verify(mockGameRepository, times(1)).getGame(roomId);
+        verify(mockGameRepository, times(1)).getById(roomId);
         verify(mockGame, times(1)).getGameStatus();
 
         Assert.assertEquals(mockGameStatus, resultGameStatus);

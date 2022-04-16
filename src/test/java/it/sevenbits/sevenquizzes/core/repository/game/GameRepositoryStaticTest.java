@@ -1,8 +1,10 @@
-package it.sevenbits.sevenquizzes.core.repository;
+package it.sevenbits.sevenquizzes.core.repository.game;
 
 import it.sevenbits.sevenquizzes.core.model.game.Game;
 import it.sevenbits.sevenquizzes.core.model.game.GameScore;
 import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepositoryStatic;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,10 +36,10 @@ public class GameRepositoryStaticTest {
 
         final Game gameMock = mock(Game.class);
 
-        when(gameRepository.addGame(roomId, gameQuestionsCount)).thenReturn(gameMock);
+        when(gameRepository.create(roomId, gameQuestionsCount)).thenReturn(gameMock);
         when(mockGames.put(eq(roomId), any(Game.class))).thenReturn(null);
 
-        final Game resultGame = gameRepository.addGame(roomId, gameQuestionsCount);
+        final Game resultGame = gameRepository.create(roomId, gameQuestionsCount);
 
         verify(mockGames, times(1)).put(eq(roomId), any(Game.class));
 
@@ -55,7 +57,7 @@ public class GameRepositoryStaticTest {
         when(mockGames.get(roomId)).thenReturn(gameMock);
         when(gameMock.getGameScore(playerId)).thenReturn(gameScoreMock);
 
-        final GameScore gameScore = gameRepository.getGame(roomId).getGameScore(playerId);
+        final GameScore gameScore = gameRepository.getById(roomId).getGameScore(playerId);
 
         verify(mockGames, times(1)).get(roomId);
         verify(gameMock, times(1)).getGameScore(playerId);
@@ -73,7 +75,7 @@ public class GameRepositoryStaticTest {
         when(mockGames.get(roomId)).thenReturn(gameMock);
         when(gameMock.getGameStatus()).thenReturn(gameStatusMock);
 
-        final GameStatus gameStatus = gameRepository.getGame(roomId).getGameStatus();
+        final GameStatus gameStatus = gameRepository.getById(roomId).getGameStatus();
 
         verify(mockGames, times(1)).get(roomId);
 
@@ -87,9 +89,9 @@ public class GameRepositoryStaticTest {
         games.add(new Game(5));
         games.add(new Game(10));
 
-        when(gameRepository.getGames()).thenReturn(games);
+        when(gameRepository.getALl()).thenReturn(games);
 
-        List<Game> resultGames = gameRepository.getGames();
+        List<Game> resultGames = gameRepository.getALl();
 
         verify(mockGames, times(1)).values();
 

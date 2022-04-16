@@ -6,7 +6,12 @@ import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
 import it.sevenbits.sevenquizzes.core.model.question.IncorrectAnswerQuestionResponse;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
-import it.sevenbits.sevenquizzes.core.repository.*;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepositoryStatic;
 import it.sevenbits.sevenquizzes.web.model.game.StartGameRequest;
 import it.sevenbits.sevenquizzes.web.model.question.AnswerQuestionRequest;
 import it.sevenbits.sevenquizzes.web.service.GameService;
@@ -16,8 +21,10 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class GameControllerTest {
@@ -41,13 +48,13 @@ public class GameControllerTest {
     }
 
     @Test
-    public void postNewGameTest() {
+    public void postNewGameTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
         final StartGameRequest startGameRequest = new StartGameRequest(playerId);
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
+        roomRepository.create(roomId, playerId, "Test room");
 
         final ResponseEntity<QuestionLocation> response = gameController.postNewGame(roomId, startGameRequest);
 
@@ -69,14 +76,14 @@ public class GameControllerTest {
     }
 
     @Test
-    public void postNewGameAlreadyStartedGameTest() {
+    public void postNewGameAlreadyStartedGameTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
         final StartGameRequest startGameRequest = new StartGameRequest(playerId);
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 10);
+        roomRepository.create(roomId, playerId, "Test room");
+        gameRepository.create(roomId, 10);
 
         final ResponseEntity<QuestionLocation> response = gameController.postNewGame(roomId, startGameRequest);
 
@@ -85,16 +92,16 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getQuestionDataTest() {
+    public void getQuestionDataTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 1);
-        questionRepository.createRoomQuestions(roomId, 1);
+        roomRepository.create(roomId, playerId, "Test room");
+        gameRepository.create(roomId, 1);
+        questionRepository.addRoomQuestions(roomId, 1);
 
-        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
-        final QuestionWithOptions question = questionRepository.getRoomQuestionById(roomId, roomQuestionsIds.get(0));
+        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsId(roomId);
+        final QuestionWithOptions question = questionRepository.getById(roomQuestionsIds.get(0));
 
         final ResponseEntity<QuestionWithOptions> response = gameController.getQuestionData(roomId, roomQuestionsIds.get(0));
 
@@ -115,21 +122,21 @@ public class GameControllerTest {
     }
 
     @Test
-    public void postAnswerTest() {
+    public void postAnswerTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        final Game game = gameRepository.addGame(roomId, 2);
-        questionRepository.createRoomQuestions(roomId, 2);
+        roomRepository.create(roomId, playerId, "Test room");
+        final Game game = gameRepository.create(roomId, 2);
+        questionRepository.addRoomQuestions(roomId, 2);
 
         game.addGameScore(playerId);
 
-        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
-        final QuestionWithOptions question = questionRepository.getRoomQuestionById(roomId, roomQuestionsIds.get(0));
+        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsId(roomId);
+        final QuestionWithOptions question = questionRepository.getById(roomQuestionsIds.get(0));
         final String answerId = question.getAnswersList().get(0).getAnswerId();
 
-        final GameStatus gameStatus = gameRepository.getGame(roomId).getGameStatus();
+        final GameStatus gameStatus = gameRepository.getById(roomId).getGameStatus();
         gameStatus.setQuestionId(question.getQuestionId());
         gameStatus.setStatus("started");
 
@@ -145,21 +152,21 @@ public class GameControllerTest {
     }
 
     @Test
-    public void postAnswerOutOfOrderTest() {
+    public void postAnswerOutOfOrderTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        final Game game = gameRepository.addGame(roomId, 1);
-        questionRepository.createRoomQuestions(roomId, 1);
+        roomRepository.create(roomId, playerId, "Test room");
+        final Game game = gameRepository.create(roomId, 1);
+        questionRepository.addRoomQuestions(roomId, 1);
 
         game.addGameScore(playerId);
 
-        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
-        final QuestionWithOptions question = questionRepository.getRoomQuestionById(roomId, roomQuestionsIds.get(0));
+        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsId(roomId);
+        final QuestionWithOptions question = questionRepository.getById(roomQuestionsIds.get(0));
         final String answerId = question.getAnswersList().get(0).getAnswerId();
 
-        final GameStatus gameStatus = gameRepository.getGame(roomId).getGameStatus();
+        final GameStatus gameStatus = gameRepository.getById(roomId).getGameStatus();
         gameStatus.setQuestionId(UUID.randomUUID().toString());
         gameStatus.setStatus("started");
 
@@ -173,13 +180,13 @@ public class GameControllerTest {
     }
 
     @Test
-    public void postAnswerNotFoundTest() {
+    public void postAnswerNotFoundTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId,  1);
-        questionRepository.createRoomQuestions(roomId, 1);
+        roomRepository.create(roomId, playerId, "Test room");
+        gameRepository.create(roomId,  1);
+        questionRepository.addRoomQuestions(roomId, 1);
 
         final AnswerQuestionRequest request = new AnswerQuestionRequest(playerId, UUID.randomUUID().toString());
 
@@ -189,28 +196,28 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getGameStatusTest() {
+    public void getGameStatusTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 1);
+        roomRepository.create(roomId, playerId, "Test room");
+        gameRepository.create(roomId, 1);
 
         final ResponseEntity<GameStatus> response = gameController.getGameStatus(roomId);
 
-        Assert.assertEquals("not started", response.getBody().getStatus());
+        Assert.assertEquals("not started", Objects.requireNonNull(response.getBody()).getStatus());
         Assert.assertEquals(1, response.getBody().getQuestionsCount());
         Assert.assertEquals(0, response.getBody().getQuestionNumber());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    public void getGameStatusNotFoundTest() {
+    public void getGameStatusNotFoundTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomId = UUID.randomUUID().toString();
 
-        roomRepository.addRoom(roomId, playerId, "Test room");
-        gameRepository.addGame(roomId, 1);
+        roomRepository.create(roomId, playerId, "Test room");
+        gameRepository.create(roomId, 1);
 
         final ResponseEntity<GameStatus> response = gameController.getGameStatus(UUID.randomUUID().toString());
 

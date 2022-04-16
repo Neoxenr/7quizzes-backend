@@ -41,4 +41,9 @@ public class Player {
     public int hashCode() {
         return playerId != null ? playerId.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return playerId;
+    }
 }

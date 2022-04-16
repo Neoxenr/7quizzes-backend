@@ -1,13 +1,17 @@
 package it.sevenbits.sevenquizzes.config;
 
-import it.sevenbits.sevenquizzes.core.repository.GameRepository;
-import it.sevenbits.sevenquizzes.core.repository.GameRepositoryStatic;
-import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
-import it.sevenbits.sevenquizzes.core.repository.QuestionRepositoryStatic;
-import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
-import it.sevenbits.sevenquizzes.core.repository.RoomRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.question.PostgresQuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepositoryStatic;
+import it.sevenbits.sevenquizzes.core.repository.room.PostgresRoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepositoryStatic;
+import jdk.nashorn.internal.scripts.JD;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcOperations;
 
 import java.util.HashMap;
 
@@ -29,8 +33,8 @@ public class RepositoryConfig {
      * @return QuestionRepository - repository for storing question data
      */
     @Bean
-    public QuestionRepository questionRepository() {
-        return new QuestionRepositoryStatic(new HashMap<>(), new HashMap<>());
+    public QuestionRepository questionRepository(final JdbcOperations jdbcOperations) {
+        return new PostgresQuestionRepository(jdbcOperations);
     }
 
     /**
@@ -39,7 +43,7 @@ public class RepositoryConfig {
      * @return RoomRepository - repository for storing room data
      */
     @Bean
-    public RoomRepository roomRepository() {
-        return new RoomRepositoryStatic(new HashMap<>(), new HashMap<>());
+    public RoomRepository roomRepository(final JdbcOperations jdbcOperations) {
+        return new PostgresRoomRepository(jdbcOperations);
     }
 }

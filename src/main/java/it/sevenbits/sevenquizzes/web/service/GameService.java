@@ -7,11 +7,12 @@ import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.question.AnswerQuestionResponse;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionLocation;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
-import it.sevenbits.sevenquizzes.core.repository.GameRepository;
-import it.sevenbits.sevenquizzes.core.repository.QuestionRepository;
-import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
+import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,7 +30,7 @@ public class GameService {
      * @param gameRepository     - game repository
      */
     public GameService(final QuestionRepository questionRepository, final GameRepository gameRepository,
-            final RoomRepository roomRepository) {
+                       final RoomRepository roomRepository) {
         this.questionRepository = questionRepository;
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
@@ -40,7 +41,7 @@ public class GameService {
      *
      * @return QuestionLocation - model with question id
      */
-    public QuestionLocation startGame(final String roomId, final String playerId) {
+    public QuestionLocation startGame(final String roomId, final String playerId) throws SQLException {
         if (!roomRepository.contains(roomId)) {
             throw new NullPointerException("Room with id = " + roomId + "does not exist");
         }
@@ -50,7 +51,7 @@ public class GameService {
         }
 
         final int questionsCount = 2;
-        final Game game = gameRepository.addGame(roomId, questionsCount);
+        final Game game = gameRepository.create(roomId, questionsCount);
 
         for (final Player player : roomRepository.getPlayers(roomId)) {
             game.addGameScore(player.getPlayerId());
@@ -59,10 +60,16 @@ public class GameService {
         final GameStatus gameStatus = game.getGameStatus();
         gameStatus.setStatus("started");
 
-        questionRepository.createRoomQuestions(roomId, questionsCount);
+        questionRepository.addRoomQuestions(roomId, questionsCount);
 
-        final List<String> roomQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
-        final String questionId = selectQuestionId(roomQuestionsIds);
+        final List<String> roomQuestionsId = questionRepository.getRoomQuestionsId(roomId);
+
+        String questionId = selectQuestionId(roomQuestionsId);
+        while (game.getPreviousQuestionsId().contains(questionId)) {
+            questionId = selectQuestionId(roomQuestionsId);
+        }
+
+        game.addPreviousQuestionId(questionId);
 
         gameStatus.setQuestionId(questionId);
 
@@ -76,7 +83,10 @@ public class GameService {
      * @return QuestionWithOptions - model with question data
      */
     public QuestionWithOptions getQuestionData(final String roomId, final String questionId) {
-        return questionRepository.getRoomQuestionById(roomId, questionId);
+        if (!roomRepository.contains(roomId)) {
+            throw new NullPointerException("Room with id = " + roomId + " does not exist");
+        }
+        return questionRepository.getById(questionId);
     }
 
     /**
@@ -88,12 +98,8 @@ public class GameService {
      * @throws Exception - if game is ended
      */
     public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
-            final String questionId, final String answerId) throws Exception {
-        if (!roomRepository.contains(roomId)) {
-            throw new NullPointerException("Room with id = " + roomId + " does not exist");
-        }
-
-        final Game game = gameRepository.getGame(roomId);
+                                                 final String questionId, final String answerId) throws Exception {
+        final Game game = gameRepository.getById(roomId);
 
         final GameStatus gameStatus = game.getGameStatus();
         final GameScore gameScore = game.getGameScore(playerId);
@@ -106,7 +112,7 @@ public class GameService {
         }
 
         if (!gameStatus.getStatus().equals("ended")) {
-            final String correctAnswerId = questionRepository.getCorrectAnswerId(roomId, questionId);
+            final String correctAnswerId = questionRepository.getCorrectAnswerId(questionId);
 
             game.addAnsweredPlayer(playerId);
 
@@ -119,21 +125,19 @@ public class GameService {
                     gameStatus.updateQuestionNumber();
                 }
 
-                questionRepository.removeRoomQuestion(roomId, questionId);
-
                 final int questionsCount = gameStatus.getQuestionsCount();
                 final int questionNumber = gameStatus.getQuestionNumber();
 
                 if (questionNumber == questionsCount) {
                     gameStatus.setStatus("ended");
-                    gameRepository.remove(roomId);
+
                     return new AnswerQuestionResponse(correctAnswerId, null,
                             gameScore.getTotalScore(), gameScore.getQuestionScore());
                 }
 
                 game.setAnsweredPlayers(new ArrayList<>());
 
-                List<String> questionsIds = questionRepository.getRoomQuestionsIds(roomId);
+                List<String> questionsIds = questionRepository.getRoomQuestionsId(roomId);
                 final String newQuestionId = selectQuestionId(questionsIds);
 
                 gameStatus.setQuestionId(newQuestionId);
@@ -153,16 +157,16 @@ public class GameService {
      * @return GameStatus - game status
      */
     public GameStatus getGameStatus(final String roomId) {
-        return gameRepository.getGame(roomId).getGameStatus();
+        return gameRepository.getById(roomId).getGameStatus();
     }
 
     /**
      * Return next question id
      *
-     * @param questionsIds - questions ids
+     * @param questionsId - questions ids
      * @return String - next question id
      */
-    private String selectQuestionId(final List<String> questionsIds) {
-        return questionsIds.get(new Random().nextInt(questionsIds.size()));
+    private String selectQuestionId(final List<String> questionsId) {
+        return questionsId.get(new Random().nextInt(questionsId.size()));
     }
 }
