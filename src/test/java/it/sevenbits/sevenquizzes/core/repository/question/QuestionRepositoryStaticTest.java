@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.repository;
+package it.sevenbits.sevenquizzes.core.repository.question;
 
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptionsAndAnswer;
@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.mockito.Mockito.*;
@@ -36,7 +37,7 @@ public class QuestionRepositoryStaticTest {
         when(mockRoomsQuestions.get(roomId)).thenReturn(roomQuestions);
         when(roomQuestions.keySet()).thenReturn(new HashSet<>(questionsIds));
 
-        final List<String> resultQuestionsIds = questionRepository.getRoomQuestionsIds(roomId);
+        final List<String> resultQuestionsIds = questionRepository.getRoomQuestionsId(roomId);
 
         verify(mockRoomsQuestions, times(1)).get(roomId);
         verify(roomQuestions, times(1)).keySet();
@@ -46,51 +47,42 @@ public class QuestionRepositoryStaticTest {
 
     @Test
     public void getCorrectAnswerIdTest() {
-        final String roomId = UUID.randomUUID().toString();
         final String questionId = UUID.randomUUID().toString();
         final String answerId = UUID.randomUUID().toString();
 
-        final Map<String, QuestionWithOptionsAndAnswer> mockRoomQuestions = mock(Map.class);
         final QuestionWithOptionsAndAnswer mockQuestion = mock(QuestionWithOptionsAndAnswer.class);
 
-        when(mockRoomsQuestions.get(roomId)).thenReturn(mockRoomQuestions);
-        when(mockRoomQuestions.get(questionId)).thenReturn(mockQuestion);
+        when(mockQuestions.get(questionId)).thenReturn(mockQuestion);
         when(mockQuestion.getAnswerId()).thenReturn(answerId);
 
-        final String resultAnswerId = questionRepository.getCorrectAnswerId(roomId, questionId);
+        final String resultAnswerId = questionRepository.getCorrectAnswerId(questionId);
 
-        verify(mockRoomsQuestions, times(1)).get(roomId);
-        verify(mockRoomQuestions, times(1)).get(questionId);
+        verify(mockQuestions, times(1)).get(questionId);
         verify(mockQuestion, times(1)).getAnswerId();
 
         Assert.assertEquals(answerId, resultAnswerId);
     }
 
     @Test
-    public void getRoomQuestionById() {
-        final String roomId = UUID.randomUUID().toString();
+    public void getQuestionByIdTest() {
         final String questionId = UUID.randomUUID().toString();
 
         final QuestionWithOptionsAndAnswer mockQuestionWithAnswer = mock(QuestionWithOptionsAndAnswer.class);
-        final Map<String, QuestionWithOptionsAndAnswer> mockRoomQuestions = mock(Map.class);
+        final QuestionWithOptions mockQuestion = mock(QuestionWithOptions.class);
 
-        final QuestionWithOptions question = mock(QuestionWithOptions.class);
+        when(mockQuestions.get(questionId)).thenReturn(mockQuestionWithAnswer);
+        when(mockQuestionWithAnswer.getQuestion()).thenReturn(mockQuestion);
 
-        when(mockRoomsQuestions.get(roomId)).thenReturn(mockRoomQuestions);
-        when(mockRoomQuestions.get(questionId)).thenReturn(mockQuestionWithAnswer);
-        when(mockQuestionWithAnswer.getQuestion()).thenReturn(question);
+        final QuestionWithOptions resultQuestion = questionRepository.getById(questionId);
 
-        final QuestionWithOptions resultQuestion = questionRepository.getRoomQuestionById(roomId, questionId);
-
-        verify(mockRoomsQuestions, times(1)).get(roomId);
-        verify(mockRoomQuestions, times(1)).get(questionId);
+        verify(mockQuestions, times(1)).get(questionId);
         verify(mockQuestionWithAnswer, times(1)).getQuestion();
 
-        Assert.assertEquals(question, resultQuestion);
+        Assert.assertEquals(mockQuestion, resultQuestion);
     }
 
     @Test
-    public void createRoomQuestionsTest() {
+    public void createRoomQuestionsTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
 
         final List<String> questionsIds = new ArrayList<>();
@@ -111,30 +103,11 @@ public class QuestionRepositoryStaticTest {
         when(mockQuestions.get(questionsIds.get(1))).thenReturn(secondQuestion);
         when(mockRoomsQuestions.put(roomId, roomQuestions)).thenReturn(null);
 
-        questionRepository.createRoomQuestions(roomId, 2);
+        questionRepository.addRoomQuestions(roomId, 2);
 
         verify(mockQuestions, times(1)).keySet();
         verify(mockQuestions, times(1)).get(questionsIds.get(0));
         verify(mockQuestions, times(1)).get(questionsIds.get(1));
         verify(mockRoomsQuestions, times(1)).put(roomId, roomQuestions);
-    }
-
-    @Test
-    public void removeRoomQuestionTest() {
-        final String roomId = UUID.randomUUID().toString();
-        final String questionId = UUID.randomUUID().toString();
-
-        final QuestionWithOptionsAndAnswer question = mock(QuestionWithOptionsAndAnswer.class);
-
-        final Map<String, QuestionWithOptionsAndAnswer> roomQuestions = new HashMap<>();
-        roomQuestions.put(questionId, question);
-
-        when(mockRoomsQuestions.get(roomId)).thenReturn(roomQuestions);
-
-        questionRepository.removeRoomQuestion(roomId, questionId);
-
-        verify(mockRoomsQuestions, times(1)).get(roomId);
-
-        Assert.assertEquals(roomQuestions.size(), 0);
     }
 }

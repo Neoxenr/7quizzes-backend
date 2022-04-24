@@ -3,9 +3,10 @@ package it.sevenbits.sevenquizzes.web.service;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomsResponse;
-import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 @Service
@@ -27,7 +28,7 @@ public class RoomService {
      * @return GetRoomsResponse - all rooms from repository
      */
     public GetRoomsResponse getRooms() {
-        return new GetRoomsResponse(roomRepository.getRooms());
+        return new GetRoomsResponse(roomRepository.getAll());
     }
 
     /**
@@ -37,10 +38,10 @@ public class RoomService {
      * @param roomName - room name
      * @return CreateRoomResponse - new room model
      */
-    public CreateRoomResponse createRoom(final String playerId, final String roomName) {
+    public CreateRoomResponse createRoom(final String playerId, final String roomName) throws SQLException {
         final String roomId = UUID.randomUUID().toString();
 
-        return roomRepository.addRoom(roomId, playerId, roomName);
+        return roomRepository.create(roomId, playerId, roomName);
     }
 
     /**
@@ -50,7 +51,7 @@ public class RoomService {
      * @return GetRoomResponse - room model
      */
     public GetRoomResponse getRoom(final String roomId) {
-        return new GetRoomResponse(roomRepository.getRoomById(roomId), roomRepository.getPlayers(roomId));
+        return new GetRoomResponse(roomRepository.getById(roomId), roomRepository.getPlayers(roomId));
     }
 
     /**
@@ -59,7 +60,7 @@ public class RoomService {
      * @param roomId - room id
      * @param playerId - player id
      */
-    public void joinRoom(final String roomId, final String playerId) {
-        roomRepository.addPlayer(roomId, playerId);
+    public void joinRoom(final String roomId, final String playerId) throws SQLException {
+        roomRepository.update(roomId, playerId);
     }
 }

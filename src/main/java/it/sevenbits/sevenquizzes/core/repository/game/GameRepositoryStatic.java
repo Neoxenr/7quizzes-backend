@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.repository;
+package it.sevenbits.sevenquizzes.core.repository.game;
 
 import it.sevenbits.sevenquizzes.core.model.game.Game;
 
@@ -19,18 +19,12 @@ public class GameRepositoryStatic implements GameRepository {
     }
 
     /**
-     * Creates new game
+     * Returns all games in repository
      *
-     * @param roomId - room id
-     * @param questionCount - questions count
-     * @return Game - new game
+     * @return List<Game>
      */
-    public Game addGame(final String roomId, final int questionCount) {
-        final Game game = new Game(questionCount);
-
-        games.put(roomId, game);
-
-        return game;
+    public List<Game> getALl() {
+        return new ArrayList<>(games.values());
     }
 
     /**
@@ -39,17 +33,23 @@ public class GameRepositoryStatic implements GameRepository {
      * @param roomId - room id
      * @return Game - game entity
      */
-    public Game getGame(final String roomId) {
+    public Game getById(final String roomId) {
         return games.get(roomId);
     }
 
     /**
-     * Returns all games in repository
+     * Creates new game
      *
-     * @return List<Game>
+     * @param roomId - room id
+     * @param questionCount - questions count
+     * @return Game - new game
      */
-    public List<Game> getGames() {
-        return new ArrayList<>(games.values());
+    public Game create(final String roomId, final int questionCount) {
+        final Game game = new Game(questionCount);
+
+        games.put(roomId, game);
+
+        return game;
     }
 
     /**
@@ -60,10 +60,5 @@ public class GameRepositoryStatic implements GameRepository {
     @Override
     public boolean contains(final String roomId) {
         return games.containsKey(roomId);
-    }
-
-    @Override
-    public void remove(final String roomId) {
-        games.remove(roomId);
     }
 }

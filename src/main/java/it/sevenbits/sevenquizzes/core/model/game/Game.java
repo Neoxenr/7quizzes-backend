@@ -10,6 +10,7 @@ public class Game {
     private final GameStatus gameStatus;
 
     private List<String> answeredPlayers;
+    private List<String> previousQuestionsId;
 
     /**
      * Game constructor
@@ -21,10 +22,11 @@ public class Game {
         gameStatus = new GameStatus("not started", null, 0, questionsCount);
 
         answeredPlayers = new ArrayList<>();
+        previousQuestionsId = new ArrayList<>();
     }
 
     /**
-     * Adds game score to player
+     * Add game score to player
      *
      * @param playerId - player id
      */
@@ -33,12 +35,21 @@ public class Game {
     }
 
     /**
-     * Adds new answered player
+     * Add new answered player
      *
      * @param playerId - player id
      */
     public void addAnsweredPlayer(final String playerId) {
         answeredPlayers.add(playerId);
+    }
+
+    /**
+     * Add question id to previous questions id in the game
+     *
+     * @param questionId - previous question id
+     */
+    public void addPreviousQuestionId(final String questionId) {
+        previousQuestionsId.add(questionId);
     }
 
     /**
@@ -51,7 +62,7 @@ public class Game {
     }
 
     /**
-     * Gets game score by player id
+     * Get game score by player id
      *
      * @param playerId - player id
      * @return GameScore - player's game score
@@ -60,11 +71,30 @@ public class Game {
         return gameScores.get(playerId);
     }
 
+    /**
+     * Get current game status
+     *
+     * @return GameStatus - current game status
+     */
     public GameStatus getGameStatus() {
         return gameStatus;
     }
 
+    /**
+     * Return answered players
+     *
+     * @return List<String> - answered players
+     */
     public List<String> getAnsweredPlayers() {
         return answeredPlayers;
+    }
+
+    /**
+     * Return previous questions id in the game
+     *
+     * @return List<String> - previous questions id
+     */
+    public List<String> getPreviousQuestionsId() {
+        return previousQuestionsId;
     }
 }

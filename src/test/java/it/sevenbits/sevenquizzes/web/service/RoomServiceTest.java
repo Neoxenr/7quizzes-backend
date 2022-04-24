@@ -1,17 +1,16 @@
 package it.sevenbits.sevenquizzes.web.service;
 
-import it.sevenbits.sevenquizzes.core.model.game.Game;
 import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomsResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
-import it.sevenbits.sevenquizzes.core.repository.GameRepository;
-import it.sevenbits.sevenquizzes.core.repository.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,17 +39,17 @@ public class RoomServiceTest {
         rooms.add(firstRoom);
         rooms.add(secondRoom);
 
-        when(roomRepository.getRooms()).thenReturn(rooms);
+        when(roomRepository.getAll()).thenReturn(rooms);
 
         final GetRoomsResponse resultRooms = roomService.getRooms();
 
-        verify(roomRepository, times(1)).getRooms();
+        verify(roomRepository, times(1)).getAll();
 
         Assert.assertEquals(new GetRoomsResponse(rooms).getRooms(), resultRooms.getRooms());
     }
 
     @Test
-    public void createRoomTest() {
+    public void createRoomTest() throws SQLException {
         final String playerId = UUID.randomUUID().toString();
         final String roomName = "Test room";
         final String roomId = UUID.randomUUID().toString();
@@ -60,11 +59,11 @@ public class RoomServiceTest {
 
         final CreateRoomResponse room = new CreateRoomResponse(roomId, roomName, players);
 
-        when(roomRepository.addRoom(anyString(), eq(playerId), eq(roomName))).thenReturn(room);
+        when(roomRepository.create(anyString(), eq(playerId), eq(roomName))).thenReturn(room);
 
         final CreateRoomResponse resultRoom = roomService.createRoom(playerId, roomName);
 
-        verify(roomRepository, times(1)).addRoom(anyString(), eq(playerId), eq(roomName));
+        verify(roomRepository, times(1)).create(anyString(), eq(playerId), eq(roomName));
 
         Assert.assertEquals(room.getRoomName(), resultRoom.getRoomName());
         Assert.assertEquals(room.getPlayers(), resultRoom.getPlayers());
@@ -79,12 +78,12 @@ public class RoomServiceTest {
         final RoomWithOptions room = new RoomWithOptions(roomId, roomName);
         final List<Player> mockPlayers = mock(List.class);
 
-        when(roomRepository.getRoomById(roomId)).thenReturn(room);
+        when(roomRepository.getById(roomId)).thenReturn(room);
         when(roomRepository.getPlayers(roomId)).thenReturn(mockPlayers);
 
         final GetRoomResponse resultRoomResponse = roomService.getRoom(roomId);
 
-        verify(roomRepository, times(1)).getRoomById(roomId);
+        verify(roomRepository, times(1)).getById(roomId);
         verify(roomRepository, times(1)).getPlayers(roomId);
 
         Assert.assertEquals(roomId, resultRoomResponse.getRoomId());
@@ -93,12 +92,12 @@ public class RoomServiceTest {
     }
 
     @Test
-    public void joinRoom() {
+    public void joinRoom() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
 
         roomService.joinRoom(roomId, playerId);
 
-        verify(roomRepository, times(1)).addPlayer(roomId, playerId);
+        verify(roomRepository, times(1)).update(roomId, playerId);
     }
 }

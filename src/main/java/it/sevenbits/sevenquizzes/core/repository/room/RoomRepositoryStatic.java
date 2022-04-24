@@ -1,4 +1,4 @@
-package it.sevenbits.sevenquizzes.core.repository;
+package it.sevenbits.sevenquizzes.core.repository.room;
 
 import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
@@ -28,7 +28,7 @@ public class RoomRepositoryStatic implements RoomRepository {
      * @return List<RoomWithOptions> - all rooms in repository
      */
     @Override
-    public List<RoomWithOptions> getRooms() {
+    public List<RoomWithOptions> getAll() {
         return new ArrayList<>(rooms.values());
     }
 
@@ -41,7 +41,7 @@ public class RoomRepositoryStatic implements RoomRepository {
      * @return CreateRoomResponse - model for new room
      */
     @Override
-    public CreateRoomResponse addRoom(final String roomId, final String playerId, final String roomName) {
+    public CreateRoomResponse create(final String roomId, final String playerId, final String roomName) {
         final RoomWithOptions room = new RoomWithOptions(roomId, roomName);
 
         List<Player> players = new ArrayList<>();
@@ -60,18 +60,18 @@ public class RoomRepositoryStatic implements RoomRepository {
      * @return RoomWithOptions - model for room
      */
     @Override
-    public RoomWithOptions getRoomById(final String roomId) {
+    public RoomWithOptions getById(final String roomId) {
         return rooms.get(roomId);
     }
 
     /**
-     * Adds player to the room
+     * Add player to the room
      *
      * @param roomId - room id
      * @param playerId - player id
      */
     @Override
-    public void addPlayer(final String roomId, final String playerId) {
+    public void update(final String roomId, final String playerId) {
         final List<Player> players = roomsPlayers.get(roomId);
 
         final Player player = new Player(playerId);

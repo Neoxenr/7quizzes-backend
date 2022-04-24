@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS question (
+    id TEXT PRIMARY KEY,
+    text TEXT
+)

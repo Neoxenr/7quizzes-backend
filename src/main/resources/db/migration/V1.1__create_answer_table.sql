@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS answer (
+    id TEXT PRIMARY KEY,
+    text TEXT,
+    correct BOOLEAN,
+    question_id TEXT REFERENCES question (id) ON UPDATE CASCADE ON DELETE CASCADE
+)

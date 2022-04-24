@@ -1,0 +1,8 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    jdbcUrl: jdbc:postgresql://localhost:5432/seven_quizzes
+    username:  seven_quizzes
+    password:  seven_password
+    driver-class-name: org.postgresql.Driver

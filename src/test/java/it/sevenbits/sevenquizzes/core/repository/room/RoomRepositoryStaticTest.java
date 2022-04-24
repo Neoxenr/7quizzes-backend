@@ -1,12 +1,15 @@
-package it.sevenbits.sevenquizzes.core.repository;
+package it.sevenbits.sevenquizzes.core.repository.room;
 
 import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.room.RoomRepositoryStatic;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +41,7 @@ public class RoomRepositoryStaticTest {
 
         when(roomsMock.values()).thenReturn(rooms);
 
-        final List<RoomWithOptions> resultRooms = roomRepository.getRooms();
+        final List<RoomWithOptions> resultRooms = roomRepository.getAll();
 
         verify(roomsMock, times(1)).values();
 
@@ -46,7 +49,7 @@ public class RoomRepositoryStaticTest {
     }
 
     @Test
-    public void addRoomTest() {
+    public void addRoomTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
         final String roomName = "room 1";
@@ -56,7 +59,7 @@ public class RoomRepositoryStaticTest {
 
         final CreateRoomResponse createRoomResponse = new CreateRoomResponse(roomId, roomName, players);
 
-        final CreateRoomResponse createRoomResponseResult = roomRepository.addRoom(roomId, playerId, roomName);
+        final CreateRoomResponse createRoomResponseResult = roomRepository.create(roomId, playerId, roomName);
 
         Assert.assertEquals(createRoomResponse.getRoomId(), createRoomResponseResult.getRoomId());
         Assert.assertEquals(createRoomResponse.getRoomName(), createRoomResponseResult.getRoomName());
@@ -70,7 +73,7 @@ public class RoomRepositoryStaticTest {
 
         when(roomsMock.get(roomId)).thenReturn(roomMock);
 
-        final RoomWithOptions roomResult = roomRepository.getRoomById(roomId);
+        final RoomWithOptions roomResult = roomRepository.getById(roomId);
 
         verify(roomsMock, times(1)).get(roomId);
 
@@ -78,7 +81,7 @@ public class RoomRepositoryStaticTest {
     }
 
     @Test
-    public void addPlayerTest() {
+    public void addPlayerTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
 
@@ -86,7 +89,7 @@ public class RoomRepositoryStaticTest {
 
         when(roomsPlayersMock.get(roomId)).thenReturn(players);
 
-        roomRepository.addPlayer(roomId, playerId);
+        roomRepository.update(roomId, playerId);
 
         verify(roomsPlayersMock, times(1)).get(roomId);
 
@@ -94,7 +97,7 @@ public class RoomRepositoryStaticTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void addPlayerExceptionTest() {
+    public void addPlayerExceptionTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
 
@@ -105,7 +108,7 @@ public class RoomRepositoryStaticTest {
 
         when(roomsPlayersMock.get(roomId)).thenReturn(players);
 
-        roomRepository.addPlayer(roomId, playerId);
+        roomRepository.update(roomId, playerId);
 
         verify(roomsPlayersMock, times(1)).get(roomId);
     }
