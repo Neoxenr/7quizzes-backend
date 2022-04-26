@@ -5,6 +5,7 @@ import java.util.List;
 public class GetUserResponse {
     private final String userId;
     private final String username;
+    private final String email;
 
     private final List<String> roles;
 
@@ -15,9 +16,10 @@ public class GetUserResponse {
      * @param username - username
      * @param roles - user's roles
      */
-    public GetUserResponse(final String userId, final String username, final List<String> roles) {
+    public GetUserResponse(final String userId, final String username, final String email, final List<String> roles) {
         this.userId = userId;
         this.username = username;
+        this.email = email;
         this.roles = roles;
     }
 
@@ -37,6 +39,15 @@ public class GetUserResponse {
      */
     public String getUsername() {
         return username;
+    }
+
+    /**
+     * Get email
+     *
+     * @return String - email
+     */
+    public String getEmail() {
+        return email;
     }
 
     /**

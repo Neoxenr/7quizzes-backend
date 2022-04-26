@@ -33,7 +33,8 @@ public class UserService {
         final List<GetUserResponse> getUserResponseList = new ArrayList<>();
 
         for (final User user : users) {
-            getUserResponseList.add(new GetUserResponse(user.getUserId(), user.getUsername(), user.getRoles()));
+            getUserResponseList.add(new GetUserResponse(user.getUserId(), user.getUsername(),
+                    user.getEmail(), user.getRoles()));
         }
 
         return new GetUsersResponse(getUserResponseList);
@@ -48,6 +49,6 @@ public class UserService {
     public GetUserResponse getUser(final String userId) {
         final User user = userRepository.getById(userId);
 
-        return new GetUserResponse(userId, user.getUsername(), user.getRoles());
+        return new GetUserResponse(userId, user.getUsername(), user.getEmail(), user.getRoles());
     }
 }
