@@ -1,5 +1,6 @@
 package it.sevenbits.sevenquizzes.web.model.room;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JoinRoomRequest {
@@ -10,6 +11,7 @@ public class JoinRoomRequest {
      *
      * @param playerId - player id
      */
+    @JsonCreator
     public JoinRoomRequest(@JsonProperty("playerId") final String playerId) {
         this.playerId = playerId;
     }

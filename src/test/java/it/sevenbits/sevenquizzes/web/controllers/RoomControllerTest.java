@@ -4,6 +4,7 @@ import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.GetRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
+import it.sevenbits.sevenquizzes.core.model.user.UserCredentials;
 import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
 import it.sevenbits.sevenquizzes.core.repository.game.GameRepositoryStatic;
 import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
@@ -18,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class RoomControllerTest {
     private RoomController roomController;
@@ -59,15 +57,21 @@ public class RoomControllerTest {
 
     @Test
     public void createRoomTest() {
-        final String playerId = UUID.randomUUID().toString();
+        final String userId = UUID.randomUUID().toString();
+        final String userEmail = "test@gmail.com";
+
+        final List<String> userRoles = new ArrayList<>();
+        userRoles.add("USER");
+
         final String roomName = "Test room";
 
-        final CreateRoomRequest createRoomRequest = new CreateRoomRequest(playerId, roomName);
+        final CreateRoomRequest createRoomRequest = new CreateRoomRequest(roomName);
 
-        final ResponseEntity<CreateRoomResponse> response = roomController.createRoom(createRoomRequest);
+        final UserCredentials userCredentials = new UserCredentials(userId, userEmail, userRoles);
+        final ResponseEntity<CreateRoomResponse> response = roomController.createRoom(createRoomRequest, userCredentials);
 
         Assert.assertEquals(1, roomRepository.getAll().size());
-        Assert.assertEquals(new Player(playerId), response.getBody().getPlayers().get(0));
+        Assert.assertEquals(new Player(userId), response.getBody().getPlayers().get(0));
         Assert.assertEquals(roomName, response.getBody().getRoomName());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -84,23 +88,6 @@ public class RoomControllerTest {
 
         Assert.assertEquals(roomId, Objects.requireNonNull(response.getBody()).getRoomId());
         Assert.assertEquals(1, response.getBody().getPlayers().size());
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    public void joinRoomTest() throws SQLException {
-        final String roomId = UUID.randomUUID().toString();
-        final String playerId = UUID.randomUUID().toString();
-        final String roomName = "Test room";
-
-        roomRepository.create(roomId, playerId, roomName);
-
-        final String newPlayerId = UUID.randomUUID().toString();
-        final JoinRoomRequest joinRoomRequest = new JoinRoomRequest(newPlayerId);
-
-        final ResponseEntity<Boolean> response = (ResponseEntity<Boolean>) roomController.joinRoom(roomId, joinRoomRequest);
-
-        Assert.assertEquals(newPlayerId, roomRepository.getPlayers(roomId).get(1).getPlayerId());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

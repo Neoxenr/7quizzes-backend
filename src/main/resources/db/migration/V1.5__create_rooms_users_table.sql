@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS rooms_users (
+    room_id TEXT REFERENCES room (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    user_id TEXT REFERENCES "user" (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY (room_id, user_id)
+)

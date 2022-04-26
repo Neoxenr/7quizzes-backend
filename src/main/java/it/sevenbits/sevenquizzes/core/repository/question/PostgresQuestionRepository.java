@@ -3,13 +3,8 @@ package it.sevenbits.sevenquizzes.core.repository.question;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionAnswer;
 import it.sevenbits.sevenquizzes.core.model.question.QuestionWithOptions;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Array;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class PostgresQuestionRepository implements QuestionRepository {
     private final JdbcOperations jdbcOperations;
@@ -25,12 +20,9 @@ public class PostgresQuestionRepository implements QuestionRepository {
 
     @Override
     public List<String> getRoomQuestionsId(final String roomId) {
-        return jdbcOperations.queryForObject(
-                "SELECT questions_id FROM room WHERE id = ?",
-                (resultSet, i) -> {
-                    final Array rowArray = resultSet.getArray("questions_id");
-                    return Arrays.asList((String[]) rowArray.getArray());
-                },
+        return jdbcOperations.query(
+                "SELECT question_id FROM rooms_questions WHERE room_id = ?",
+                (resultSet, i) -> resultSet.getString("question_id"),
                 roomId
         );
     }
@@ -40,15 +32,15 @@ public class PostgresQuestionRepository implements QuestionRepository {
         final List<QuestionAnswer> questionAnswers = jdbcOperations.query(
                 "SELECT id, text FROM answer WHERE question_id = ?",
                 (answerResultSet, k) -> {
-                    final String rowAnswerId = answerResultSet.getString("id");
-                    final String rowAnswerText = answerResultSet.getString("text");
-                    return new QuestionAnswer(rowAnswerId, rowAnswerText);
+                    final String answerId = answerResultSet.getString("id");
+                    final String answerText = answerResultSet.getString("text");
+                    return new QuestionAnswer(answerId, answerText);
                 },
                 questionId
         );
 
         return jdbcOperations.queryForObject(
-                "SELECT id, text FROM question WHERE id = ?",
+                "SELECT * FROM question WHERE id = ?",
                 (questionResultSet, i) -> {
                     final String rowQuestionId = questionResultSet.getString("id");
                     final String rowQuestionText = questionResultSet.getString("text");
@@ -69,16 +61,18 @@ public class PostgresQuestionRepository implements QuestionRepository {
     }
 
     @Override
-    public void addRoomQuestions(final String roomId, final int questionsCount) throws SQLException {
+    public void addRoomQuestions(final String roomId, final int questionsCount) {
         final List<String> questionsId = jdbcOperations.query(
                 "SELECT id FROM question ORDER BY RANDOM() LIMIT ?",
                 (resultSet, i) -> resultSet.getString("id"),
                 questionsCount);
 
-        jdbcOperations.update(
-                "UPDATE room SET questions_id = ? WHERE id = ?",
-                Objects.requireNonNull(((JdbcTemplate) jdbcOperations).getDataSource())
-                .getConnection().createArrayOf("text", questionsId.toArray()), roomId
-        );
+        // ?
+        for (final String questionId : questionsId) {
+            jdbcOperations.update(
+                    "INSERT INTO rooms_questions (room_id, question_id) VALUES (?, ?)",
+                    roomId, questionId
+            );
+        }
     }
 }

@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS role (
+    id TEXT REFERENCES "user" (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    name TEXT,
+    PRIMARY KEY (id, name)
+)

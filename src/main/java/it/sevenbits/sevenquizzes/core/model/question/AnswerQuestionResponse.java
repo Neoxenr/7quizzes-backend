@@ -2,7 +2,6 @@ package it.sevenbits.sevenquizzes.core.model.question;
 
 public class AnswerQuestionResponse {
     private final String correctAnswerId;
-
     private final String questionId;
 
     private final int totalScore;

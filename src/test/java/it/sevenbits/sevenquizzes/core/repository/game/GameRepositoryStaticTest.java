@@ -30,7 +30,6 @@ public class GameRepositoryStaticTest {
     @Test
     public void addGameTest() {
         final String roomId = UUID.randomUUID().toString();
-        final String playerId = UUID.randomUUID().toString();
 
         final int gameQuestionsCount = 10;
 
