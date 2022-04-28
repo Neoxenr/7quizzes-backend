@@ -17,6 +17,9 @@ import java.util.Set;
  * Spring interceptor for JWT based authentication and authorization
  */
 public class JwtAuthInterceptor implements HandlerInterceptor {
+    /**
+     * user credentials
+     */
     public static String userCredentials = "userCredentialsAttr";
 
     private final JwtTokenService jwtService;
