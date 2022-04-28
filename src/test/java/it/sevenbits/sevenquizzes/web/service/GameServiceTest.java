@@ -45,7 +45,7 @@ public class GameServiceTest {
         final String roomId = UUID.randomUUID().toString();
         final String playerId = UUID.randomUUID().toString();
 
-        final int questionsCount = 2;
+        final int questionsCount = 3;
 
         final Game mockGame = mock(Game.class);
         final GameStatus gameStatus = new GameStatus("not started", null, 0, questionsCount);
