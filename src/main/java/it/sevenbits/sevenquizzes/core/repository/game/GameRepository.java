@@ -10,7 +10,7 @@ public interface GameRepository {
      *
      * @return List<Game> - all games in repository
      */
-    List<Game> getALl();
+    List<Game> getAll();
 
     /**
      * Gets game by room id

@@ -1,6 +1,8 @@
 package it.sevenbits.sevenquizzes.core.repository.user;
 
 import it.sevenbits.sevenquizzes.core.model.user.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import java.util.ArrayList;
@@ -8,6 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class PostgresUserRepository implements UserRepository {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.core.repository.user.logger");
+
     private final JdbcOperations jdbcOperations;
 
     /**
@@ -28,6 +32,8 @@ public class PostgresUserRepository implements UserRepository {
      */
     @Override
     public User create(final String email, final String password) {
+        logger.info("Create user with email = {} and password = {}", email, password);
+
         final String userId = UUID.randomUUID().toString();
         final String userRole = "USER";
 
@@ -56,6 +62,7 @@ public class PostgresUserRepository implements UserRepository {
      */
     @Override
     public User getById(final String userId) {
+        logger.info("Getting user with user id = {}", userId);
         try {
             return jdbcOperations.queryForObject(
                     "SELECT username FROM \"user\" WHERE id = ?",
@@ -86,6 +93,7 @@ public class PostgresUserRepository implements UserRepository {
      */
     @Override
     public User getByEmail(final String email) {
+        logger.info("Getting user with email = {}", email);
         try {
             return jdbcOperations.queryForObject(
                     "SELECT id, username, password FROM \"user\" WHERE email = ?",
@@ -116,6 +124,7 @@ public class PostgresUserRepository implements UserRepository {
      */
     @Override
     public List<User> getAll() {
+        logger.info("Getting all users");
         return jdbcOperations.query(
                 "SELECT * FROM \"user\"",
                 (resultSet, k) -> {

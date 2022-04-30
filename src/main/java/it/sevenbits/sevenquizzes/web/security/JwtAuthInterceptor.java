@@ -2,6 +2,8 @@ package it.sevenbits.sevenquizzes.web.security;
 
 import it.sevenbits.sevenquizzes.core.model.user.UserCredentials;
 import it.sevenbits.sevenquizzes.web.service.token.JwtTokenService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
@@ -17,6 +19,8 @@ import java.util.Set;
  * Spring interceptor for JWT based authentication and authorization
  */
 public class JwtAuthInterceptor implements HandlerInterceptor {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.web.security.logger");
+
     /**
      * user credentials
      */
@@ -58,7 +62,11 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             String token = header.substring(index);
 
             UserCredentials credentials = jwtService.parseToken(token);
+
+            logger.debug("Found credentials in Authorization header: {}", credentials.getEmail());
+
             request.setAttribute(userCredentials, credentials);
+
             return credentials;
         } catch (Exception e) {
             return null;

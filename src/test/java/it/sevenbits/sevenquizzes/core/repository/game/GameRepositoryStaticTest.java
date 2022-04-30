@@ -3,8 +3,6 @@ package it.sevenbits.sevenquizzes.core.repository.game;
 import it.sevenbits.sevenquizzes.core.model.game.Game;
 import it.sevenbits.sevenquizzes.core.model.game.GameScore;
 import it.sevenbits.sevenquizzes.core.model.game.GameStatus;
-import it.sevenbits.sevenquizzes.core.repository.game.GameRepository;
-import it.sevenbits.sevenquizzes.core.repository.game.GameRepositoryStatic;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,9 +86,9 @@ public class GameRepositoryStaticTest {
         games.add(new Game(5));
         games.add(new Game(10));
 
-        when(gameRepository.getALl()).thenReturn(games);
+        when(gameRepository.getAll()).thenReturn(games);
 
-        List<Game> resultGames = gameRepository.getALl();
+        List<Game> resultGames = gameRepository.getAll();
 
         verify(mockGames, times(1)).values();
 

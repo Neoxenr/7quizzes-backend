@@ -1,6 +1,8 @@
 package it.sevenbits.sevenquizzes.web.security;
 
 import it.sevenbits.sevenquizzes.core.model.user.UserCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -13,6 +15,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * Resolves {@link UserCredentials} method arguments
  */
 public class UserCredentialsResolver implements HandlerMethodArgumentResolver {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.web.security.logger");
+
     @Override
     public boolean supportsParameter(final MethodParameter parameter) {
         return parameter.getParameterType().isAssignableFrom(UserCredentials.class);
@@ -26,6 +30,8 @@ public class UserCredentialsResolver implements HandlerMethodArgumentResolver {
             final WebDataBinderFactory binderFactory
     ) {
         try {
+            logger.debug("Getting UserCredentials from request attribute");
+
             return (UserCredentials) webRequest.getAttribute(
                     JwtAuthInterceptor.userCredentials, RequestAttributes.SCOPE_REQUEST
             );
