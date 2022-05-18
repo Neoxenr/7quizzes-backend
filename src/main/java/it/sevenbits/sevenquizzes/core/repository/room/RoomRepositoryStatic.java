@@ -42,7 +42,7 @@ public class RoomRepositoryStatic implements RoomRepository {
      */
     @Override
     public CreateRoomResponse create(final String roomId, final String playerId, final String roomName) {
-        final RoomWithOptions room = new RoomWithOptions(roomId, roomName);
+        final RoomWithOptions room = new RoomWithOptions(roomId, roomName, playerId);
 
         List<Player> players = new ArrayList<>();
         players.add(new Player(playerId));
@@ -50,7 +50,7 @@ public class RoomRepositoryStatic implements RoomRepository {
         rooms.put(roomId, room);
         roomsPlayers.put(roomId, players);
 
-        return new CreateRoomResponse(roomId, roomName, players);
+        return new CreateRoomResponse(roomId, roomName, playerId, players);
     }
 
     /**

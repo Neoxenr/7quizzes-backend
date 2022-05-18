@@ -7,6 +7,7 @@ import java.util.List;
 public class GetRoomResponse {
     private final String roomId;
     private final String roomName;
+    private final String ownerId;
 
     private final List<Player> players;
 
@@ -19,6 +20,7 @@ public class GetRoomResponse {
     public GetRoomResponse(final RoomWithOptions room, final List<Player> players) {
         this.roomId = room.getRoomId();
         this.roomName = room.getRoomName();
+        this.ownerId = room.getOwnerId();
         this.players = players;
     }
 
@@ -47,6 +49,10 @@ public class GetRoomResponse {
      */
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
     }
 
     /**

@@ -8,13 +8,16 @@ public class CreateRoomResponse extends RoomWithOptions {
     private final List<Player> players;
 
     /**
-     *
-     * @param roomId - room id
+     * @param roomId   - room id
      * @param roomName - room name
-     * @param players - players
+     * @param players  - players
      */
-    public CreateRoomResponse(final String roomId, final String roomName, final List<Player> players) {
-        super(roomId, roomName);
+    public CreateRoomResponse(
+            final String roomId,
+            final String roomName,
+            final String ownerId,
+            final List<Player> players) {
+        super(roomId, roomName, ownerId);
         this.players = players;
     }
 

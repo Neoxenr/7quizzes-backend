@@ -3,6 +3,7 @@ package it.sevenbits.sevenquizzes.core.model.room;
 public class RoomWithOptions {
     private final String roomId;
     private final String roomName;
+    private final String ownerId;
 
     /**
      * RoomWithOptions constructor
@@ -10,9 +11,11 @@ public class RoomWithOptions {
      * @param roomId - room id
      * @param roomName - room name
      */
-    public RoomWithOptions(final String roomId, final String roomName) {
+    public RoomWithOptions(final String roomId, final String roomName, final String ownerId) {
         this.roomId = roomId;
         this.roomName = roomName;
+
+        this.ownerId = ownerId;
     }
 
     /**
@@ -31,5 +34,9 @@ public class RoomWithOptions {
      */
     public String getRoomName() {
         return roomName;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
     }
 }

@@ -4,13 +4,10 @@ import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class PostgresRoomRepository implements RoomRepository {
     private final JdbcOperations jdbcOperations;
@@ -27,78 +24,80 @@ public class PostgresRoomRepository implements RoomRepository {
     @Override
     public List<RoomWithOptions> getAll() {
         return jdbcOperations.query(
-                "SELECT id, name FROM room",
+                "SELECT * FROM room",
                 (resultSet, i) -> {
-                    final String rowRoomId = resultSet.getString("id");
-                    final String rowRoomName = resultSet.getString("name");
-                    return new RoomWithOptions(rowRoomId, rowRoomName);
+                    final String roomId = resultSet.getString("id");
+                    final String roomName = resultSet.getString("name");
+                    final String ownerId = resultSet.getString("owner_id");
+                    return new RoomWithOptions(roomId, roomName, ownerId);
                 }
         );
     }
 
     @Override
     public RoomWithOptions getById(final String roomId) {
-        return jdbcOperations.queryForObject(
-                "SELECT id, \"name\" FROM room WHERE id = ?",
-                (resultSet, i) -> {
-                    final String rowRoomId = resultSet.getString("id");
-                    final String rowRoomName = resultSet.getString("name");
-                    return new RoomWithOptions(rowRoomId, rowRoomName);
-                },
-                roomId);
+        try {
+            final RoomWithOptions room = jdbcOperations.queryForObject(
+                    "SELECT * FROM room WHERE id = ?",
+                    (resultSet, i) -> {
+                        final String rowRoomId = resultSet.getString("id");
+                        final String rowRoomName = resultSet.getString("name");
+                        final String rowOwnerId = resultSet.getString("owner_id");
+                        return new RoomWithOptions(rowRoomId, rowRoomName, rowOwnerId);
+                    },
+                    roomId);
+            return room;
+        } catch (Exception exception) {
+            return null;
+        }
     }
 
     @Override
-    public CreateRoomResponse create(final String roomId, final String playerId, final String roomName) throws SQLException {
-        final List<Player> players = new ArrayList<>();
-
-        players.add(new Player(playerId));
-
+    public CreateRoomResponse create(
+            final String roomId,
+            final String playerId,
+            final String roomName) throws SQLException {
         jdbcOperations.update(
-                "INSERT INTO room (id, name, users_id) VALUES (?, ?, ?)",
-                roomId, roomName, Objects.requireNonNull(((JdbcTemplate) jdbcOperations).getDataSource())
-                .getConnection().createArrayOf("text", players.toArray())
+                "INSERT INTO room (id, name, owner_id) VALUES (?, ?, ?)",
+                roomId, roomName, playerId
         );
 
-        return new CreateRoomResponse(roomId, roomName, players);
+        jdbcOperations.update(
+                "INSERT INTO rooms_users (room_id, user_id) VALUES (?, ?)",
+                roomId, playerId
+        );
+
+        List<Player> players = new ArrayList<>();
+        players.add(new Player(playerId));
+
+        return new CreateRoomResponse(roomId, roomName, playerId, players);
     }
 
     @Override
     public void update(final String roomId, final String playerId) throws SQLException {
-        final List<Player> roomPlayers = getPlayers(roomId);
+        final boolean isUserExist = jdbcOperations.queryForObject(
+                "SELECT COUNT(user_id) AS count from rooms_users WHERE room_id = ?",
+                (resultSet, k) -> resultSet.getInt("count"),
+                roomId
+        ) > 0;
 
-        final Player newPlayer = new Player(playerId);
-
-        if (roomPlayers.contains(newPlayer)) {
+        if (isUserExist) {
             throw new IllegalArgumentException("Player with current id already exists");
         }
 
-        roomPlayers.add(newPlayer);
-
         jdbcOperations.update(
-                "UPDATE room SET users_id = ? WHERE id = ?",
-                Objects.requireNonNull(((JdbcTemplate) jdbcOperations).getDataSource())
-                .getConnection().createArrayOf("text", roomPlayers.toArray()), roomId
+                "INSERT INTO rooms_users (room_id, user_id) VALUES (?, ?)",
+                roomId, playerId
         );
     }
 
     @Override
     public List<Player> getPlayers(final String roomId) {
-        return jdbcOperations.queryForObject(
-                "SELECT users_id FROM room WHERE id = ?",
-                (resultSet, i) -> {
-                    final Array rowArray = resultSet.getArray("users_id");
-                    final String[] playersId = (String[]) rowArray.getArray();
-
-                    final List<Player> players = new ArrayList<>();
-
-                    for (final String playerId : playersId) {
-                        players.add(new Player(playerId));
-                    }
-
-                    return players;
-                },
-                roomId);
+        return jdbcOperations.query(
+                "SELECT user_id FROM rooms_users WHERE room_id = ?",
+                (resultSet, k) -> new Player(resultSet.getString("user_id")),
+                roomId
+        );
     }
 
     @Override

@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,16 +34,17 @@ public class PostgresQuestionRepositoryTest {
     @Test
     public void getRoomQuestionsIdTest() {
         final String roomId = UUID.randomUUID().toString();
-        final String sqlQuery = "SELECT questions_id FROM room WHERE id = ?";
+        final String query = "SELECT question_id FROM rooms_questions WHERE room_id = ?";
 
         final List<String> mockQuestionsId = mock(List.class);
 
-        when(mockJdbcOperations.queryForObject(eq(sqlQuery), any(RowMapper.class), eq(roomId))).
+        when(mockJdbcOperations.query(eq(query), any(RowMapper.class), eq(roomId))).
                 thenReturn(mockQuestionsId);
 
         final List<String> questionsId = questionRepository.getRoomQuestionsId(roomId);
 
-        verify(mockJdbcOperations, times(1)).queryForObject(eq(sqlQuery), any(RowMapper.class), eq(roomId));
+        verify(mockJdbcOperations, times(1)).
+                query(eq(query), any(RowMapper.class), eq(roomId));
 
         Assert.assertEquals(mockQuestionsId, questionsId);
     }
@@ -51,21 +53,24 @@ public class PostgresQuestionRepositoryTest {
     public void getByIdTest() {
         final String questionId = UUID.randomUUID().toString();
 
-        final String firstSqlQuery = "SELECT id, text FROM question WHERE id = ?";
-        final String secondSqlQuery = "SELECT id, text FROM answer WHERE question_id = ?";
+        final String firstSqlQuery = "SELECT id, text FROM answer WHERE question_id = ?";
+        final String secondSqlQuery = "SELECT * FROM question WHERE id = ?";
 
-        final QuestionWithOptions mockQuestion = mock(QuestionWithOptions.class);
         final List<QuestionAnswer> mockQuestionAnswers = mock(List.class);
 
-        when(mockJdbcOperations.query(eq(secondSqlQuery), any(RowMapper.class), eq(questionId))).
+        final QuestionWithOptions mockQuestion = mock(QuestionWithOptions.class);
+
+        when(mockJdbcOperations.query(eq(firstSqlQuery), any(RowMapper.class), eq(questionId))).
                 thenReturn(mockQuestionAnswers);
-        when(mockJdbcOperations.queryForObject(eq(firstSqlQuery), any(RowMapper.class), eq(questionId))).
+        when(mockJdbcOperations.queryForObject(eq(secondSqlQuery), any(RowMapper.class), eq(questionId))).
                 thenReturn(mockQuestion);
 
         final QuestionWithOptions question = questionRepository.getById(questionId);
 
-        verify(mockJdbcOperations, times(1)).query(eq(secondSqlQuery), any(RowMapper.class), eq(questionId));
-        verify(mockJdbcOperations, times(1)).queryForObject(eq(firstSqlQuery), any(RowMapper.class), eq(questionId));
+        verify(mockJdbcOperations, times(1)).
+                query(eq(firstSqlQuery), any(RowMapper.class), eq(questionId));
+        verify(mockJdbcOperations, times(1)).
+                queryForObject(eq(secondSqlQuery), any(RowMapper.class), eq(questionId));
 
         Assert.assertEquals(mockQuestion, question);
     }
@@ -90,32 +95,21 @@ public class PostgresQuestionRepositoryTest {
     public void addRoomQuestionsTest() throws SQLException {
         final String roomId = UUID.randomUUID().toString();
 
-        final int questionsCount = 5;
+        final int questionsCount = 1;
 
         final String firstSqlQuery = "SELECT id FROM question ORDER BY RANDOM() LIMIT ?";
-        final String secondSqlQuery = "UPDATE room SET questions_id = ? WHERE id = ?";
+        final String secondSqlQuery = "INSERT INTO rooms_questions (room_id, question_id) VALUES (?, ?)";
 
-        final List<String> mockQuestionsId = mock(List.class);
-        final DataSource mockDataSource = mock(DataSource.class);
-        final Connection mockConnection = mock(Connection.class);
-        final Array mockArray = mock(Array.class);
+        final List<String> questionsId = new ArrayList<>();
+        questionsId.add(UUID.randomUUID().toString());
 
-        final Object[] array = new Object[]{};
-
-        when(mockJdbcOperations.query(eq(firstSqlQuery), any(RowMapper.class), eq(questionsCount))).thenReturn(mockQuestionsId);
-        when(mockJdbcOperations.update(eq(secondSqlQuery), any(Array.class), eq(roomId))).thenReturn(1);
-        when(((JdbcTemplate) mockJdbcOperations).getDataSource()).thenReturn(mockDataSource);
-        when(mockDataSource.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.createArrayOf(eq("text"), any(Object[].class))).thenReturn(mockArray);
-        when(mockQuestionsId.toArray()).thenReturn(array);
+        when(mockJdbcOperations.query(eq(firstSqlQuery), any(RowMapper.class), eq(questionsCount))).
+                thenReturn(questionsId);
+        when(mockJdbcOperations.update(eq(secondSqlQuery), eq(roomId), eq(questionsId.get(0)))).thenReturn(1);
 
         questionRepository.addRoomQuestions(roomId, questionsCount);
 
         verify(mockJdbcOperations, times(1)).query(eq(firstSqlQuery), any(RowMapper.class), eq(questionsCount));
-        verify(mockJdbcOperations, times(1)).update(eq(secondSqlQuery), any(Array.class), eq(roomId));
-        verify((JdbcTemplate) mockJdbcOperations, times(1)).getDataSource();
-        verify(mockDataSource, times(1)).getConnection();
-        verify(mockConnection, times(1)).createArrayOf(eq("text"), any(Object[].class));
-        verify(mockQuestionsId, times(1)).toArray();
+        verify(mockJdbcOperations, times(1)).update(eq(secondSqlQuery), eq(roomId), eq(questionsId.get(0)));
     }
 }

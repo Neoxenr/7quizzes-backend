@@ -33,8 +33,10 @@ public class RoomServiceTest {
     public void getRoomsTest() {
         final List<RoomWithOptions> rooms = new ArrayList<>();
 
-        final RoomWithOptions firstRoom = new RoomWithOptions(UUID.randomUUID().toString(), "room 1");
-        final RoomWithOptions secondRoom = new RoomWithOptions(UUID.randomUUID().toString(), "room 2");
+        final String ownerId = UUID.randomUUID().toString();
+
+        final RoomWithOptions firstRoom = new RoomWithOptions(UUID.randomUUID().toString(), "room 1", ownerId);
+        final RoomWithOptions secondRoom = new RoomWithOptions(UUID.randomUUID().toString(), "room 2", ownerId);
 
         rooms.add(firstRoom);
         rooms.add(secondRoom);
@@ -57,7 +59,7 @@ public class RoomServiceTest {
         final List<Player> players = new ArrayList<>();
         players.add(new Player(playerId));
 
-        final CreateRoomResponse room = new CreateRoomResponse(roomId, roomName, players);
+        final CreateRoomResponse room = new CreateRoomResponse(roomId, roomName, playerId, players);
 
         when(roomRepository.create(anyString(), eq(playerId), eq(roomName))).thenReturn(room);
 
@@ -74,8 +76,9 @@ public class RoomServiceTest {
     public void getRoomTest() {
         final String roomId = UUID.randomUUID().toString();
         final String roomName = "Test room";
+        final String ownerId = UUID.randomUUID().toString();
 
-        final RoomWithOptions room = new RoomWithOptions(roomId, roomName);
+        final RoomWithOptions room = new RoomWithOptions(roomId, roomName, ownerId);
         final List<Player> mockPlayers = mock(List.class);
 
         when(roomRepository.getById(roomId)).thenReturn(room);

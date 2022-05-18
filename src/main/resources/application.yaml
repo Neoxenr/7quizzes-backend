@@ -6,3 +6,7 @@ spring:
     username:  seven_quizzes
     password:  seven_password
     driver-class-name: org.postgresql.Driver
+jwt:
+  issuer: 'jwt@7bits.it'
+  signingKey: 'a104e698-783c-4347-97f2-6c00204049ad'
+  aTokenDuration: 60

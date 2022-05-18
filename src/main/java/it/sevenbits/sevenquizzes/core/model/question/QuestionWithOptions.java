@@ -4,7 +4,6 @@ import java.util.List;
 
 public class QuestionWithOptions {
     private final String questionId;
-
     private final String questionText;
 
     private final List<QuestionAnswer> answersList;
