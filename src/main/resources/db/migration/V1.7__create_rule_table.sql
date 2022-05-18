@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS rule (
+    id TEXT PRIMARY KEY,
+    text TEXT
+)

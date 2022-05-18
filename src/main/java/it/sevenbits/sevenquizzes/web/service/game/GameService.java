@@ -56,7 +56,7 @@ public class GameService {
             throw new StartGameException("The player isn't owner of room");
         }
 
-        final int questionsCount = 2;
+        final int questionsCount = 3;
 
         final Game game = gameRepository.create(roomId, questionsCount);
 
@@ -114,7 +114,7 @@ public class GameService {
         final GameStatus gameStatus = game.getGameStatus();
         final GameScore gameScore = game.getGameScore(playerId);
 
-        final List<String> answeredPlayers = game.getAnsweredPlayers();
+        List<String> answeredPlayers = game.getAnsweredPlayers();
 
         if (!gameStatus.getQuestionId().equals(questionId) || answeredPlayers.contains(playerId)) {
             return new AnswerQuestionResponse(null, null,
@@ -151,7 +151,7 @@ public class GameService {
                 List<String> questionsIds = questionRepository.getRoomQuestionsId(roomId);
                 final String newQuestionId = selectQuestionId(questionsIds, game.getPreviousQuestionsId());
 
-                game.addPreviousQuestionId(questionId);
+                game.addPreviousQuestionId(newQuestionId);
 
                 gameStatus.setQuestionId(newQuestionId);
             }

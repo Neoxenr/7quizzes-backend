@@ -6,6 +6,8 @@ import it.sevenbits.sevenquizzes.core.repository.question.PostgresQuestionReposi
 import it.sevenbits.sevenquizzes.core.repository.question.QuestionRepository;
 import it.sevenbits.sevenquizzes.core.repository.room.PostgresRoomRepository;
 import it.sevenbits.sevenquizzes.core.repository.room.RoomRepository;
+import it.sevenbits.sevenquizzes.core.repository.rule.PostgresRuleRepository;
+import it.sevenbits.sevenquizzes.core.repository.rule.RuleRepository;
 import it.sevenbits.sevenquizzes.core.repository.user.PostgresUserRepository;
 import it.sevenbits.sevenquizzes.core.repository.user.UserRepository;
 import org.springframework.context.annotation.Bean;
@@ -55,5 +57,16 @@ public class RepositoryConfig {
     @Bean
     public UserRepository userRepository(final JdbcOperations jdbcOperations) {
         return new PostgresUserRepository(jdbcOperations);
+    }
+
+    /**
+     * Return RuleRepository
+     *
+     * @param jdbcOperations - jdbc operations
+     * @return RuleRepository - repository for storing rule data
+     */
+    @Bean
+    public RuleRepository ruleRepository(final JdbcOperations jdbcOperations) {
+        return new PostgresRuleRepository(jdbcOperations);
     }
 }
