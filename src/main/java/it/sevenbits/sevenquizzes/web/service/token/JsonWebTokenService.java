@@ -7,6 +7,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import it.sevenbits.sevenquizzes.core.model.user.User;
 import it.sevenbits.sevenquizzes.core.model.user.UserCredentials;
 import it.sevenbits.sevenquizzes.web.security.JwtSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -16,6 +18,8 @@ import java.util.List;
 
 @Service
 public class JsonWebTokenService implements JwtTokenService {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.web.service.token.logger");
+
     private final JwtSettings jwtSettings;
 
     /**
@@ -29,6 +33,8 @@ public class JsonWebTokenService implements JwtTokenService {
 
     @Override
     public UserCredentials parseToken(final String token) {
+        logger.debug("Parsing token {}", token);
+
         Jws<Claims> claims = Jwts.parser().setSigningKey(jwtSettings.getTokenSigningKey()).parseClaimsJws(token);
 
         final String userId = claims.getBody().getSubject();
@@ -41,6 +47,8 @@ public class JsonWebTokenService implements JwtTokenService {
 
     @Override
     public String createToken(final User user) {
+        logger.debug("Generating token for {}", user.getUsername());
+
         Instant now = Instant.now();
 
         Claims claims = Jwts.claims()

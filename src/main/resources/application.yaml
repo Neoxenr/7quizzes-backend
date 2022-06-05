@@ -1,11 +1,26 @@
 server:
   port: 8080
+
 spring:
+  profiles:
+    active: file-only-logging
   datasource:
     jdbcUrl: jdbc:postgresql://localhost:5432/seven_quizzes
     username:  seven_quizzes
     password:  seven_password
     driver-class-name: org.postgresql.Driver
+
+logging:
+  level:
+    root: INFO
+    it:
+      sevenbits:
+        sevenquizzes: DEBUG
+    org:
+      springframework: ERROR
+  file:
+    path: logs
+
 jwt:
   issuer: 'jwt@7bits.it'
   signingKey: 'a104e698-783c-4347-97f2-6c00204049ad'

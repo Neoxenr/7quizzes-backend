@@ -1,12 +1,16 @@
 package it.sevenbits.sevenquizzes.core.repository.game;
 
 import it.sevenbits.sevenquizzes.core.model.game.Game;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class GameRepositoryStatic implements GameRepository {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.core.repository.game.logger");
+
     private final Map<String, Game> games;
 
     /**
@@ -23,7 +27,8 @@ public class GameRepositoryStatic implements GameRepository {
      *
      * @return List<Game>
      */
-    public List<Game> getALl() {
+    public List<Game> getAll() {
+        logger.info("Getting all games");
         return new ArrayList<>(games.values());
     }
 
@@ -34,18 +39,21 @@ public class GameRepositoryStatic implements GameRepository {
      * @return Game - game entity
      */
     public Game getById(final String roomId) {
+        logger.info("Getting game with room id = {}", roomId);
         return games.get(roomId);
     }
 
     /**
-     * Creates new game
+     * Create new game
      *
      * @param roomId - room id
-     * @param questionCount - questions count
+     * @param questionsCount - questions count
      * @return Game - new game
      */
-    public Game create(final String roomId, final int questionCount) {
-        final Game game = new Game(questionCount);
+    public Game create(final String roomId, final int questionsCount) {
+        logger.info("Creating new game with room id = {} and questions count = {}", roomId, questionsCount);
+
+        final Game game = new Game(questionsCount);
 
         games.put(roomId, game);
 
@@ -59,6 +67,7 @@ public class GameRepositoryStatic implements GameRepository {
      */
     @Override
     public boolean contains(final String roomId) {
+        logger.info("Checking that game with room id = {} is exist", roomId);
         return games.containsKey(roomId);
     }
 }

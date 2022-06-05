@@ -3,6 +3,8 @@ package it.sevenbits.sevenquizzes.core.repository.room;
 import it.sevenbits.sevenquizzes.core.model.player.Player;
 import it.sevenbits.sevenquizzes.core.model.room.CreateRoomResponse;
 import it.sevenbits.sevenquizzes.core.model.room.RoomWithOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import java.sql.SQLException;
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostgresRoomRepository implements RoomRepository {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.core.repository.room.logger");
+
     private final JdbcOperations jdbcOperations;
 
     /**
@@ -23,6 +27,7 @@ public class PostgresRoomRepository implements RoomRepository {
 
     @Override
     public List<RoomWithOptions> getAll() {
+        logger.info("Getting all rooms");
         return jdbcOperations.query(
                 "SELECT * FROM room",
                 (resultSet, i) -> {
@@ -36,6 +41,7 @@ public class PostgresRoomRepository implements RoomRepository {
 
     @Override
     public RoomWithOptions getById(final String roomId) {
+        logger.info("Getting room with room id = {}", roomId);
         try {
             final RoomWithOptions room = jdbcOperations.queryForObject(
                     "SELECT * FROM room WHERE id = ?",
@@ -57,6 +63,8 @@ public class PostgresRoomRepository implements RoomRepository {
             final String roomId,
             final String playerId,
             final String roomName) throws SQLException {
+        logger.info("Creating room with room id = {}, player id = {}, room name = {}", roomId, playerId, roomName);
+
         jdbcOperations.update(
                 "INSERT INTO room (id, name, owner_id) VALUES (?, ?, ?)",
                 roomId, roomName, playerId
@@ -75,6 +83,8 @@ public class PostgresRoomRepository implements RoomRepository {
 
     @Override
     public void update(final String roomId, final String playerId) throws SQLException {
+        logger.info("Updating room with room id = {}, player id = {}", roomId, playerId);
+
         final boolean isUserExist = jdbcOperations.queryForObject(
                 "SELECT COUNT(user_id) AS count from rooms_users WHERE room_id = ?",
                 (resultSet, k) -> resultSet.getInt("count"),
@@ -93,6 +103,7 @@ public class PostgresRoomRepository implements RoomRepository {
 
     @Override
     public List<Player> getPlayers(final String roomId) {
+        logger.info("Getting all players for room with room id = {}", roomId);
         return jdbcOperations.query(
                 "SELECT user_id FROM rooms_users WHERE room_id = ?",
                 (resultSet, k) -> new Player(resultSet.getString("user_id")),
@@ -102,6 +113,7 @@ public class PostgresRoomRepository implements RoomRepository {
 
     @Override
     public boolean contains(final String roomId) {
+        logger.info("Checking that room with room id = {} is exist", roomId);
         return jdbcOperations.queryForObject(
                 "SELECT COUNT(id) as count FROM room WHERE id = ?",
                 (resultSet, i) -> resultSet.getInt("count"),

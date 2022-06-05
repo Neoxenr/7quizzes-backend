@@ -1,11 +1,15 @@
 package it.sevenbits.sevenquizzes.core.repository.rule;
 
 import it.sevenbits.sevenquizzes.core.model.rule.Rule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import java.util.List;
 
 public class PostgresRuleRepository implements RuleRepository {
+    private final Logger logger = LoggerFactory.getLogger("it.sevenbits.sevenquizzes.core.repository.rule.logger");
+
     private final JdbcOperations jdbcOperations;
 
     /**
@@ -19,6 +23,7 @@ public class PostgresRuleRepository implements RuleRepository {
 
     @Override
     public List<Rule> getRules() {
+        logger.info("Getting all rules");
         return jdbcOperations.query(
                 "SELECT * FROM rule",
                 (resultSet, i) -> {
