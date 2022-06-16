@@ -69,7 +69,11 @@ public class PostgresQuestionRepository implements QuestionRepository {
 
     @Override
     public void addRoomQuestions(final String roomId, final int questionsCount) {
+        jdbcOperations.update("DELETE FROM rooms_questions WHERE room_id = ?",
+                roomId);
+
         logger.info("Adding room questions for room with room id = {} and questions count = {}", roomId, questionsCount);
+
         final List<String> questionsId = jdbcOperations.query(
                 "SELECT id FROM question ORDER BY RANDOM() LIMIT ?",
                 (resultSet, i) -> resultSet.getString("id"),
