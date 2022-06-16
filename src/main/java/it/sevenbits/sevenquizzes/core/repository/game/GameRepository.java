@@ -29,6 +29,8 @@ public interface GameRepository {
      */
     Game create(String roomId, int questionsCount);
 
+    void delete(String roomId);
+
     /**
      * Checks that key with game id exists
      *

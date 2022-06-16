@@ -31,14 +31,14 @@ public class GameService {
      * @param gameRepository     - game repository
      */
     public GameService(final QuestionRepository questionRepository, final GameRepository gameRepository,
-            final RoomRepository roomRepository) {
+                       final RoomRepository roomRepository) {
         this.questionRepository = questionRepository;
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
     }
 
     /**
-     * Returns model with question id
+     * Return model with question id
      *
      * @return QuestionLocation - model with question id
      */
@@ -46,7 +46,9 @@ public class GameService {
         if (!roomRepository.contains(roomId)) {
             throw new NullPointerException("Room with id = " + roomId + "does not exist");
         }
+
         if (gameRepository.contains(roomId)) {
+            System.out.println("TEST");
             throw new RuntimeException("Game for room with id = " + roomId + "has been already started");
         }
 
@@ -80,7 +82,7 @@ public class GameService {
     }
 
     /**
-     * Returns model with question data
+     * Return model with question data
      *
      * @param questionId - question id
      * @return QuestionWithOptions - model with question data
@@ -108,7 +110,7 @@ public class GameService {
      * @throws Exception - if game is ended
      */
     public AnswerQuestionResponse answerQuestion(final String roomId, final String playerId,
-            final String questionId, final String answerId) throws Exception {
+                                                 final String questionId, final String answerId) throws Exception {
         final Game game = gameRepository.getById(roomId);
 
         final GameStatus gameStatus = game.getGameStatus();
@@ -141,6 +143,7 @@ public class GameService {
 
                 if (questionNumber == questionsCount) {
                     gameStatus.setStatus("ended");
+                    gameRepository.delete(roomId);
 
                     return new AnswerQuestionResponse(correctAnswerId, null,
                             gameScore.getTotalScore(), gameScore.getQuestionScore());

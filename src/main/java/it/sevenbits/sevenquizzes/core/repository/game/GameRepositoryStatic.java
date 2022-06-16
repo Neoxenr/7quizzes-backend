@@ -46,7 +46,7 @@ public class GameRepositoryStatic implements GameRepository {
     /**
      * Create new game
      *
-     * @param roomId - room id
+     * @param roomId         - room id
      * @param questionsCount - questions count
      * @return Game - new game
      */
@@ -54,14 +54,18 @@ public class GameRepositoryStatic implements GameRepository {
         logger.info("Creating new game with room id = {} and questions count = {}", roomId, questionsCount);
 
         final Game game = new Game(questionsCount);
-
         games.put(roomId, game);
 
         return game;
     }
 
+    @Override
+    public void delete(final String roomId) {
+        logger.info("Deleting game for room id = {}", roomId);
+        games.remove(roomId);
+    }
+
     /**
-     *
      * @param roomId - room id
      * @return boolean - true if game with room id exists
      */
